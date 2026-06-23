@@ -1,0 +1,189 @@
+@import "tailwindcss";
+
+/*
+  Vaskodigama design tokens.
+  Blue-led, calm, evidence-first. All colours are tuned for WCAG 2.2 AA
+  contrast on white / off-white surfaces. Do not introduce neon, purple
+  gradients, or decorative colour. See CLAUDE.md for rules.
+*/
+
+:root {
+  /* Surfaces */
+  --background: #ffffff;
+  --surface: #f6f8fc; /* warm off-white section background */
+  --surface-2: #eef3fb; /* subtle raised panels */
+  --foreground: #0f2742; /* deep navy body text on white */
+
+  /* Brand blues */
+  --primary: #1f5fd6; /* medium blue, primary actions */
+  --primary-hover: #1a52ba;
+  --primary-foreground: #ffffff;
+  --primary-soft: #e7f0fd; /* selected states / subtle highlights */
+  --primary-soft-foreground: #14438f;
+
+  --navy: #0b274a; /* deep navy headings / key text */
+
+  /* Neutrals */
+  --muted: #5a6b80; /* secondary text */
+  --muted-strong: #3c4b5f;
+  --border: #dbe3ee; /* soft blue-grey borders */
+  --border-strong: #c3cfe0;
+  --ring: #1f5fd6;
+
+  /* Status */
+  --success: #157347;
+  --success-soft: #e4f3ea;
+  --warning: #9a5b06;
+  --warning-soft: #fbf0dd;
+  --danger: #c0362c;
+  --danger-soft: #fbe7e5;
+  --info: #1f5fd6;
+  --info-soft: #e7f0fd;
+
+  /* Chart palette — restrained, blue-led, colour-blind aware */
+  --chart-1: #1f5fd6;
+  --chart-2: #0e7c7b;
+  --chart-3: #c7913b;
+  --chart-4: #6b8fd6;
+  --chart-5: #8a4fbf;
+  --chart-6: #2a9d8f;
+
+  /* Radius */
+  --radius-sm: 0.375rem;
+  --radius: 0.625rem;
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+
+  /* Shadows — subtle, professional */
+  --shadow-xs: 0 1px 2px rgba(11, 39, 74, 0.06);
+  --shadow-sm: 0 1px 3px rgba(11, 39, 74, 0.08), 0 1px 2px rgba(11, 39, 74, 0.04);
+  --shadow-md: 0 6px 16px rgba(11, 39, 74, 0.08), 0 2px 6px rgba(11, 39, 74, 0.05);
+  --shadow-lg: 0 18px 40px rgba(11, 39, 74, 0.12);
+
+  /* Motion */
+  --duration-fast: 120ms;
+  --duration: 200ms;
+  --duration-slow: 360ms;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-hover: var(--primary-hover);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+  --color-primary-soft-foreground: var(--primary-soft-foreground);
+
+  --color-navy: var(--navy);
+  --color-muted: var(--muted);
+  --color-muted-strong: var(--muted-strong);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-ring: var(--ring);
+
+  --color-success: var(--success);
+  --color-success-soft: var(--success-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-info: var(--info);
+  --color-info-soft: var(--info-soft);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-chart-6: var(--chart-6);
+
+  --radius-sm: var(--radius-sm);
+  --radius-md: var(--radius);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+
+  --shadow-xs: var(--shadow-xs);
+  --shadow-sm: var(--shadow-sm);
+  --shadow-md: var(--shadow-md);
+  --shadow-lg: var(--shadow-lg);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-manrope), var(--font-inter), ui-sans-serif, sans-serif;
+
+  --breakpoint-xs: 24rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: var(--font-heading);
+  color: var(--navy);
+  letter-spacing: -0.02em;
+}
+
+/* Visible, consistent focus ring for keyboard users */
+:where(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Skip link */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: 0;
+  z-index: 100;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  padding: 0.625rem 1rem;
+  border-radius: 0 0 var(--radius) 0;
+  font-weight: 600;
+}
+.skip-link:focus {
+  left: 0;
+}
+
+/* Honour reduced-motion preference globally */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Thin, calm scrollbars for horizontally scrolling tables */
+.scroll-x {
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-strong) transparent;
+}
+
+/* Utility: subtle dotted grid used behind hero/preview blocks */
+.bg-grid {
+  background-image: radial-gradient(var(--border) 1px, transparent 1px);
+  background-size: 22px 22px;
+}

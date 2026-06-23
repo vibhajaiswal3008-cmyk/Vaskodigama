@@ -1,0 +1,20 @@
+# Netlify preview configuration for Vaskodigama.
+# Static export (output: "export") publishes the `out/` folder — no backend.
+# This file is safe to keep; it only affects Netlify deployments.
+
+[build]
+  command = "npm run build"
+  publish = "out"
+
+[build.environment]
+  # Marks the build as a work-in-progress review copy:
+  #  - shows the "Development Preview" banner
+  #  - sets noindex/nofollow + blocks robots.txt
+  NEXT_PUBLIC_PREVIEW = "true"
+
+# Belt-and-braces no-index at the HTTP header level (in addition to the meta
+# tag and robots.txt). public/_headers carries the same rule for Netlify Drop.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"

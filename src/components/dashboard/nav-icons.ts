@@ -1,0 +1,35 @@
+import {
+  LayoutDashboard,
+  Search,
+  Globe,
+  ShoppingCart,
+  Factory,
+  Ship,
+  Building2,
+  GitCompareArrows,
+  Bell,
+  FileText,
+  Bookmark,
+  Sparkles,
+  Settings,
+  CreditCard,
+  type LucideIcon,
+} from "lucide-react";
+
+/** Map icon names (stored as strings in site config) to components. */
+export const navIcons: Record<string, LucideIcon> = {
+  LayoutDashboard,
+  Search,
+  Globe,
+  ShoppingCart,
+  Factory,
+  Ship,
+  Building2,
+  GitCompareArrows,
+  Bell,
+  FileText,
+  Bookmark,
+  Sparkles,
+  Settings,
+  CreditCard,
+};

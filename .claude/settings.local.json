@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm -v)",
+      "Bash(echo \"npm: $\\(npm -v 2>&1\\)\")",
+      "Bash(npx -v)",
+      "Bash(echo \"npx: $\\(npx -v 2>&1\\)\")",
+      "Bash(git --version)",
+      "PowerShell($paths = @\\(\"$env:ProgramFiles\\\\nodejs\\\\node.exe\",\"${env:ProgramFiles\\(x86\\)}\\\\nodejs\\\\node.exe\",\"$env:LOCALAPPDATA\\\\Programs\\\\nodejs\\\\node.exe\",\"$env:APPDATA\\\\npm\\\\node.exe\",\"$env:LOCALAPPDATA\\\\fnm\",\"$env:USERPROFILE\\\\.nvm\",\"$env:USERPROFILE\\\\scoop\\\\apps\\\\nodejs\"\\); foreach \\($p in $paths\\) { if \\(Test-Path $p\\) { Write-Output \"FOUND: $p\" } }; Write-Output \"--- winget check ---\"; try { \\(Get-Command winget\\).Source } catch { 'no winget' })"
+    ]
+  }
+}
