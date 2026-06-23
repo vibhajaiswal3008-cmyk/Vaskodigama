@@ -19,6 +19,10 @@
 # one-off local preview artifact
 /vaskodigama-preview.html
 
+# tunnel binary + logs (local preview link)
+/cloudflared.exe
+/cloudflared.log
+
 # next.js
 /.next/
 /out/
@@ -45,3 +49,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+/reference/

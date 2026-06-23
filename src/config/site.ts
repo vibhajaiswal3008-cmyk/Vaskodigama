@@ -124,6 +124,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
 /** Authenticated application navigation (demo). */
 export const dashboardNav: { label: string; href: string; icon: string }[] = [
   { label: "Overview", href: "/dashboard", icon: "LayoutDashboard" },
+  { label: "Trade Analytics", href: "/dashboard/analytics", icon: "ChartColumnBig" },
   { label: "Search", href: "/dashboard/search", icon: "Search" },
   { label: "Markets", href: "/dashboard/markets", icon: "Globe" },
   { label: "Buyers", href: "/dashboard/buyers", icon: "ShoppingCart" },

@@ -28,10 +28,12 @@ export function SearchExperience({
     params.has("dest") ||
     params.has("hs");
 
-  const query = hasQuery ? paramsToQuery(params) : fallback;
-  if (!query.term && resultPath.includes("dashboard")) {
-    query.term = fallback.term;
-  }
+  const parsed = hasQuery ? paramsToQuery(params) : fallback;
+  // Dashboard search always needs a term to show results; fall back without mutating.
+  const query =
+    !parsed.term && resultPath.includes("dashboard")
+      ? { ...parsed, term: fallback.term }
+      : parsed;
   const result = buildSearchResult(query);
 
   return (

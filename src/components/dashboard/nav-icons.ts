@@ -1,5 +1,6 @@
 import {
   LayoutDashboard,
+  ChartColumnBig,
   Search,
   Globe,
   ShoppingCart,
@@ -19,6 +20,7 @@ import {
 /** Map icon names (stored as strings in site config) to components. */
 export const navIcons: Record<string, LucideIcon> = {
   LayoutDashboard,
+  ChartColumnBig,
   Search,
   Globe,
   ShoppingCart,
