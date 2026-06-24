@@ -21,67 +21,74 @@ const SORTS: { id: SortKey; label: string }[] = [
 ];
 
 function CountryCard({ country }: { country: CoverageCountry }) {
+  const imp = country.summary.importValue;
+  const exp = country.summary.exportValue;
+  const total = Math.max(imp + exp, 1);
+  const impPct = Math.round((imp / total) * 100);
   return (
     <Link
       href={`/countries/${country.slug}`}
-      className="group flex flex-col rounded-[14px] border border-border bg-background p-4 shadow-xs transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="tile-glow group flex flex-col overflow-hidden rounded-[14px] border border-border bg-background shadow-xs focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex items-center gap-2.5">
-          <span className="text-2xl leading-none" aria-hidden>
-            {country.flag}
-          </span>
+      <div className="rule-gradient" aria-hidden />
+      <div className="flex flex-col p-4">
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-2.5">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-surface text-2xl leading-none" aria-hidden>
+              {country.flag}
+            </span>
+            <div>
+              <p className="font-semibold text-navy">{country.name}</p>
+              <p className="text-xs text-muted">
+                {country.region} · {country.code}
+              </p>
+            </div>
+          </div>
+          <ArrowUpRight
+            className="size-4 shrink-0 text-muted transition-colors group-hover:text-primary"
+            aria-hidden
+          />
+        </div>
+
+        <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
           <div>
-            <p className="font-semibold text-navy">{country.name}</p>
-            <p className="text-xs text-muted">
-              {country.region} · {country.code}
-            </p>
+            <dt className="text-muted">Records</dt>
+            <dd className="font-medium tabular-nums text-navy">
+              {formatCompact(country.summary.recordCount)}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-muted">Top group</dt>
+            <dd className="truncate font-medium text-navy" title={country.summary.topProductGroup}>
+              {country.summary.topProductGroup}
+            </dd>
+          </div>
+        </dl>
+
+        {/* Import vs export split */}
+        <div className="mt-3">
+          <div className="flex justify-between text-xs">
+            <span className="font-medium text-primary">
+              Imports {formatCurrency(imp)}
+            </span>
+            <span className="font-medium text-success">
+              {exp ? `Exports ${formatCurrency(exp)}` : "Exports —"}
+            </span>
+          </div>
+          <div className="mt-1.5 flex h-1.5 overflow-hidden rounded-full bg-surface-2" aria-hidden>
+            <span className="h-full bg-primary" style={{ width: `${impPct}%` }} />
+            <span className="h-full bg-success" style={{ width: `${100 - impPct}%` }} />
           </div>
         </div>
-        <ArrowUpRight
-          className="size-4 shrink-0 text-muted transition-colors group-hover:text-primary"
-          aria-hidden
-        />
-      </div>
 
-      <dl className="mt-3 grid grid-cols-2 gap-2 text-xs">
-        <div>
-          <dt className="text-muted">Records</dt>
-          <dd className="font-medium tabular-nums text-navy">
-            {formatCompact(country.summary.recordCount)}
-          </dd>
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {country.hasImportData ? <Badge tone="primary">Import data</Badge> : null}
+          {country.hasExportData ? (
+            <Badge tone="success">Export data</Badge>
+          ) : (
+            <Badge tone="outline">Export: coming soon</Badge>
+          )}
         </div>
-        <div>
-          <dt className="text-muted">Top group</dt>
-          <dd className="truncate font-medium text-navy" title={country.summary.topProductGroup}>
-            {country.summary.topProductGroup}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-muted">Import value</dt>
-          <dd className="font-medium tabular-nums text-navy">
-            {formatCurrency(country.summary.importValue)}
-          </dd>
-        </div>
-        <div>
-          <dt className="text-muted">Export value</dt>
-          <dd className="font-medium tabular-nums text-navy">
-            {country.summary.exportValue
-              ? formatCurrency(country.summary.exportValue)
-              : "—"}
-          </dd>
-        </div>
-      </dl>
-
-      <div className="mt-3 flex flex-wrap gap-1.5">
-        {country.hasImportData ? (
-          <Badge tone="primary">Import data</Badge>
-        ) : null}
-        {country.hasExportData ? (
-          <Badge tone="success">Export data</Badge>
-        ) : (
-          <Badge tone="outline">Export: coming soon</Badge>
-        )}
       </div>
     </Link>
   );

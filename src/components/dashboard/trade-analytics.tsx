@@ -69,18 +69,21 @@ function KpiCard({
   hint: string;
 }) {
   return (
-    <div className="rounded-lg border border-border bg-background p-4 shadow-xs">
-      <p className="text-xs font-medium uppercase tracking-wide text-muted">
-        {label}
-      </p>
-      <p className="mt-1.5 text-2xl font-semibold tabular-nums text-navy">
-        {value}
-      </p>
-      <div className="mt-1.5 flex items-center gap-1.5">
-        <Delta value={delta} />
-        <span className="text-xs text-muted">vs prev. period</span>
+    <div className="tile-glow overflow-hidden rounded-lg border border-border bg-background shadow-xs">
+      <div className="rule-gradient" aria-hidden />
+      <div className="p-4">
+        <p className="text-xs font-medium uppercase tracking-wide text-muted">
+          {label}
+        </p>
+        <p className="mt-1.5 text-2xl font-semibold tabular-nums text-navy">
+          {value}
+        </p>
+        <div className="mt-1.5 flex items-center gap-1.5">
+          <Delta value={delta} />
+          <span className="text-xs text-muted">vs prev. period</span>
+        </div>
+        <p className="sr-only">{hint}</p>
       </div>
-      <p className="sr-only">{hint}</p>
     </div>
   );
 }

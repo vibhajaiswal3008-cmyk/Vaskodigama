@@ -7,7 +7,6 @@ import {
   ShoppingCart,
   Factory,
   Ship,
-  PlaneTakeoff,
   TrendingUp,
   Boxes,
   GitCompareArrows,
