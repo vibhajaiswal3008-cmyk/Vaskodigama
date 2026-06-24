@@ -11,8 +11,6 @@ const MODES: { id: ExploreMode; label: string }[] = [
   { id: "product", label: "Product" },
   { id: "hs-code", label: "HS Code" },
   { id: "company", label: "Company" },
-  { id: "buyer", label: "Buyer" },
-  { id: "supplier", label: "Supplier" },
   { id: "importer", label: "Importer" },
   { id: "exporter", label: "Exporter" },
 ];
