@@ -1,191 +1,177 @@
-import { Sparkles } from "lucide-react";
-import { TradeSearch } from "@/components/search/trade-search";
+import { Sparkles, ArrowRight, BarChart3, Layers3 } from "lucide-react";
 import { Section, Eyebrow } from "@/components/ui/misc";
 import { ButtonLink } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { GoalSelector } from "@/components/marketing/goal-selector";
-import { AskVasko } from "@/components/ask-vasko/ask-vasko";
-import { WhatChanged } from "@/components/monitoring/what-changed";
-import { CompanyTimeline } from "@/components/company/company-timeline";
-import { OpportunityScoreCard } from "@/components/opportunity/opportunity-score";
-import { DataQualityPanel } from "@/components/shared/data-quality";
+import { HeroSearchBar } from "@/components/marketing/home/hero-search-bar";
+import { StatBand } from "@/components/marketing/home/stat-band";
 import {
-  AnalystSupport,
-  FinalCta,
-  IndustriesGrid,
-  JourneySteps,
-  ProblemSolution,
-  ProductPreview,
-} from "@/components/marketing/sections";
+  SearchModes,
+  ValueProps,
+  PlannedCapabilities,
+  BoldFinalCta,
+} from "@/components/marketing/home/vibrant-sections";
+import {
+  SampleShowcase,
+  type ShowcaseData,
+} from "@/components/marketing/home/sample-showcase";
+import { RolePathways } from "@/components/marketing/home/role-pathways";
+import { DashboardPreview } from "@/components/marketing/home/dashboard-preview";
+import { IndustriesGrid } from "@/components/marketing/sections";
 import { tradeData } from "@/lib/data";
-import { getCompany } from "@/data/mock/companies";
+import { getCountry } from "@/data/mock/countries";
 
 export default async function HomePage() {
-  const dataQuality = await tradeData.getDataQuality();
-  const meridian = getCompany("meridian-imports")!;
+  const [summary, coverage, records] = await Promise.all([
+    tradeData.getTradeAnalytics(),
+    tradeData.listCoverage(),
+    tradeData.listExploreRecords(),
+  ]);
+
+  const showcase: ShowcaseData = {
+    countries: [...coverage]
+      .sort((a, b) => b.summary.importValue - a.summary.importValue)
+      .slice(0, 6)
+      .map((c) => ({
+        slug: c.slug,
+        name: c.name,
+        flag: c.flag,
+        region: c.region,
+        recordCount: c.summary.recordCount,
+        importValue: c.summary.importValue,
+        exportValue: c.summary.exportValue,
+      })),
+    records: records.slice(0, 6).map((r) => ({
+      id: r.id,
+      date: r.date,
+      product: r.productDescription,
+      hsCode: r.hsCode,
+      route: `${getCountry(r.originCountry)?.flag ?? ""} ${r.originCountry} → ${getCountry(r.destinationCountry)?.flag ?? ""} ${r.destinationCountry}`,
+      value: r.tradeValue,
+      flow: r.tradeFlow,
+    })),
+    buyers: summary.leadingBuyers.slice(0, 5).map((b) => ({
+      id: b.id,
+      name: b.name,
+      flag: b.flag,
+      value: b.value,
+    })),
+    suppliers: summary.leadingSuppliers.slice(0, 5).map((s) => ({
+      id: s.id,
+      name: s.name,
+      flag: s.flag,
+      value: s.value,
+    })),
+  };
 
   return (
     <>
-      {/* Hero */}
-      <Section className="pt-12 sm:pt-16">
-        <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_0.95fr]">
-          <div>
-            <Badge tone="primary" className="mb-4">
-              <Sparkles className="size-3.5" aria-hidden /> Trade intelligence, made decision-ready
-            </Badge>
-            <h1 className="text-4xl font-bold leading-tight text-navy sm:text-5xl">
-              Trade data that tells you what to do next.
-            </h1>
-            <p className="mt-4 max-w-xl text-lg text-muted">
-              Search products, HS codes and markets. Discover suitable buyers and
-              suppliers, understand trade movement, and turn complex shipment
-              records into clear business decisions.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <ButtonLink href="/demo" size="lg">
-                Explore a Sample Market
-              </ButtonLink>
-              <ButtonLink href="/contact" variant="outline" size="lg">
-                Request a Guided Demo
-              </ButtonLink>
-            </div>
+      {/* ── Hero: search-first ─────────────────────────────────────────── */}
+      <section className="surface-aurora relative overflow-hidden">
+        <div className="bg-route-grid absolute inset-0 opacity-70" aria-hidden />
+        <div className="relative mx-auto w-full max-w-5xl px-4 pb-44 pt-16 text-center sm:px-6 sm:pt-20">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/85">
+            <Sparkles className="size-3.5" aria-hidden /> Global trade intelligence
+          </span>
+          <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-[1.08] text-white sm:text-5xl lg:text-6xl">
+            Turn global trade records into{" "}
+            <span className="text-gradient-light">clear business opportunities</span>
+          </h1>
+          <p className="mx-auto mt-5 max-w-2xl text-lg text-white/75">
+            Search products, HS Codes, companies, buyers, suppliers and markets
+            across 40 countries — and turn complex shipment records into
+            decision-ready intelligence.
+          </p>
+          <div className="mt-9">
+            <HeroSearchBar />
           </div>
-          <ProductPreview />
-        </div>
-
-        <div className="mt-10">
-          <TradeSearch variant="hero" resultPath="/demo" />
-        </div>
-      </Section>
-
-      {/* Goal selector */}
-      <Section muted>
-        <GoalSelector />
-      </Section>
-
-      {/* Problem / solution */}
-      <Section>
-        <ProblemSolution />
-      </Section>
-
-      {/* Five-step journey */}
-      <Section muted>
-        <JourneySteps />
-      </Section>
-
-      {/* Opportunity Score + Why this matters */}
-      <Section>
-        <div className="grid items-start gap-8 lg:grid-cols-2">
-          <div>
-            <Eyebrow>Vaskodigama Opportunity Score</Eyebrow>
-            <h2 className="mt-2 text-2xl font-bold text-navy sm:text-3xl">
-              One score, with the reasons in plain sight
-            </h2>
-            <p className="mt-3 text-muted">
-              The illustrative Opportunity Score may consider recent trade
-              activity, shipment frequency, volume growth, supplier
-              concentration, product relevance, market demand, competition,
-              buyer consistency and data freshness. It’s a guide to focus
-              attention — not a scientifically validated metric.
-            </p>
-            <ul className="mt-4 space-y-2 text-sm text-muted-strong">
-              <li>• Purchase activity increased in the illustrative period.</li>
-              <li>• The buyer appears to use a limited supplier base.</li>
-              <li>• Transaction sizes match the selected exporter profile.</li>
-              <li>• Sourcing activity from South Asia increased.</li>
-            </ul>
-          </div>
-          <OpportunityScoreCard
-            score={meridian.opportunity}
-            title="Example: Meridian Imports"
-            subject="Illustrative buyer in the UAE"
-          />
-        </div>
-      </Section>
-
-      {/* Company X-Ray + What Changed */}
-      <Section muted>
-        <div className="grid gap-8 lg:grid-cols-2">
-          <div>
-            <Eyebrow>Company X-Ray</Eyebrow>
-            <h2 className="mt-2 text-2xl font-bold text-navy sm:text-3xl">
-              A company’s trade story over time
-            </h2>
-            <p className="mt-3 text-muted">
-              See when a company first appeared, added suppliers, grew volume,
-              entered new markets or diversified products.
-            </p>
-            <div className="mt-5 rounded-xl border border-border bg-background p-5">
-              <CompanyTimeline events={meridian.timeline ?? []} />
-            </div>
-          </div>
-          <div>
-            <Eyebrow>Monitoring</Eyebrow>
-            <h2 className="mt-2 text-2xl font-bold text-navy sm:text-3xl">
-              Know what changed
-            </h2>
-            <p className="mt-3 text-muted">
-              Track new buyers and suppliers, price moves, competitor activity
-              and market shifts — filtered to what you care about.
-            </p>
-            <div className="mt-5">
-              <WhatChanged limit={3} />
-            </div>
-          </div>
-        </div>
-      </Section>
-
-      {/* Ask Vasko */}
-      <Section>
-        <div className="text-center">
-          <Eyebrow>Ask Vasko</Eyebrow>
-          <h2 className="mt-2 text-2xl font-bold text-navy sm:text-3xl">
-            Ask a question, get an answer with evidence
-          </h2>
-          <p className="mx-auto mt-2 max-w-xl text-muted">
-            A demonstration assistant that always shows the reasoning, data date
-            and confidence behind a recommendation.
+          <p className="mt-8 text-sm text-white/60">
+            Built for exporters, importers, manufacturers, sourcing teams and market researchers.
           </p>
         </div>
-        <div className="mx-auto mt-6 max-w-3xl">
-          <AskVasko />
+      </section>
+
+      {/* ── Sample showcase, overlapping the hero ──────────────────────── */}
+      <div className="relative z-10 mx-auto -mt-32 w-full max-w-5xl px-4 sm:px-6">
+        <SampleShowcase data={showcase} />
+      </div>
+
+      {/* ── Credibility band ───────────────────────────────────────────── */}
+      <Section className="pt-14 sm:pt-16">
+        <StatBand />
+      </Section>
+
+      {/* ── Search modes ───────────────────────────────────────────────── */}
+      <Section muted className="py-16 sm:py-20">
+        <SearchModes />
+      </Section>
+
+      {/* ── Value propositions ─────────────────────────────────────────── */}
+      <Section>
+        <ValueProps />
+      </Section>
+
+      {/* ── Role pathways ──────────────────────────────────────────────── */}
+      <Section muted>
+        <div className="mb-8 max-w-2xl">
+          <Eyebrow>For your role</Eyebrow>
+          <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+            One platform, different trade questions
+          </h2>
+          <p className="mt-3 text-muted">
+            Each path preconfigures the search and dashboard for how your team works.
+          </p>
+        </div>
+        <RolePathways />
+      </Section>
+
+      {/* ── Dashboard preview ──────────────────────────────────────────── */}
+      <Section>
+        <div className="grid items-start gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+          <div className="lg:pt-6">
+            <Eyebrow>Decision-ready dashboards</Eyebrow>
+            <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+              See the market from more than one angle
+            </h2>
+            <p className="mt-3 text-muted">
+              Move between summary indicators, trends, companies, countries, HS
+              Codes and transaction-level records in one connected workspace.
+            </p>
+            <ul className="mt-5 space-y-2.5">
+              {[
+                { icon: BarChart3, t: "Trends, distributions and KPIs at a glance" },
+                { icon: Layers3, t: "Drill from a country to the records behind it" },
+              ].map((f) => {
+                const Icon = f.icon;
+                return (
+                  <li key={f.t} className="flex items-center gap-3 text-sm font-medium text-navy">
+                    <span className="flex size-8 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                      <Icon className="size-4" aria-hidden />
+                    </span>
+                    {f.t}
+                  </li>
+                );
+              })}
+            </ul>
+            <ButtonLink href="/dashboard/analytics" className="mt-6">
+              View Demo Dashboard <ArrowRight className="size-4" aria-hidden />
+            </ButtonLink>
+          </div>
+          <DashboardPreview summary={summary} />
         </div>
       </Section>
 
-      {/* Industries */}
+      {/* ── Industries ─────────────────────────────────────────────────── */}
       <Section muted>
         <IndustriesGrid />
       </Section>
 
-      {/* Data transparency */}
+      {/* ── Roadmap ────────────────────────────────────────────────────── */}
       <Section>
-        <div className="grid items-start gap-8 lg:grid-cols-2">
-          <div>
-            <Eyebrow>Data transparency</Eyebrow>
-            <h2 className="mt-2 text-2xl font-bold text-navy sm:text-3xl">
-              Know what stands behind every insight
-            </h2>
-            <p className="mt-3 text-muted">
-              Every view shows when data was last updated, the coverage period,
-              source category, completeness and confidence — and is honest about
-              its limitations. We never claim 100% accuracy.
-            </p>
-            <ButtonLink href="/data" variant="outline" className="mt-5">
-              How our data works
-            </ButtonLink>
-          </div>
-          <DataQualityPanel q={dataQuality} />
-        </div>
+        <PlannedCapabilities />
       </Section>
 
-      {/* Analyst support */}
-      <Section muted>
-        <AnalystSupport />
-      </Section>
-
-      {/* Final CTA */}
-      <Section>
-        <FinalCta />
+      {/* ── Final CTA ──────────────────────────────────────────────────── */}
+      <Section className="pb-20">
+        <BoldFinalCta />
       </Section>
     </>
   );

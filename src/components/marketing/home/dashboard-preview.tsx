@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowUpRight } from "lucide-react";
 import type { TradeAnalyticsSummary } from "@/types/trade-analytics";
 import { ButtonLink } from "@/components/ui/button";
