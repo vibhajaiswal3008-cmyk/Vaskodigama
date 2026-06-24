@@ -27,6 +27,14 @@ import {
 } from "@/data/mock/companies";
 import { markets } from "@/data/mock/markets";
 import { priceRecords, shipments } from "@/data/mock/shipments";
+import { tradeAnalytics } from "@/data/mock/tradeAnalytics";
+import { coverageCountries, getCoverageCountry } from "@/config/coverage";
+import { exploreRecords } from "@/data/mock/explore-records";
+import {
+  EXPLORE_PAGE_SIZE,
+  filterExploreRecords,
+} from "@/lib/explore";
+import type { ExploreParams, ExploreResponse } from "@/types/explore";
 import { alerts, changeFeed, savedItems } from "@/data/mock/workspace";
 import { baseDataQuality } from "@/data/mock/quality";
 import type {
@@ -103,6 +111,40 @@ export const tradeData = {
   },
   async listPriceRecords() {
     return priceRecords;
+  },
+
+  /** Aggregated trade-analytics summary (KPIs, trends, partners, records). */
+  async getTradeAnalytics() {
+    return tradeAnalytics;
+  },
+
+  // --- Country coverage -----------------------------------------------------
+  async listCoverage() {
+    return coverageCountries;
+  },
+  async getCoverage(slug: string) {
+    return getCoverageCountry(slug) ?? null;
+  },
+
+  // --- Explore records ------------------------------------------------------
+  /** Full illustrative record set (the Explore client filters in-browser). */
+  async listExploreRecords() {
+    return exploreRecords;
+  },
+  /**
+   * API-ready search seam: a production ApiTradeDataService would forward
+   * `params` to the backend instead of filtering the mock set here.
+   */
+  async searchExplore(params: ExploreParams): Promise<ExploreResponse> {
+    const all = filterExploreRecords(exploreRecords, params);
+    const page = Math.max(1, params.page);
+    const start = (page - 1) * EXPLORE_PAGE_SIZE;
+    return {
+      records: all.slice(start, start + EXPLORE_PAGE_SIZE),
+      total: all.length,
+      page,
+      pageSize: EXPLORE_PAGE_SIZE,
+    };
   },
 
   // --- Workspace ------------------------------------------------------------

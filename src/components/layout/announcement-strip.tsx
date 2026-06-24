@@ -13,14 +13,14 @@ export function AnnouncementStrip() {
   return (
     <div className="bg-navy text-white">
       <div className="mx-auto flex max-w-6xl items-center justify-center gap-3 px-4 py-2 text-sm sm:px-6">
+        <span className="text-center text-white/90">
+          Explore trade intelligence across 40 global markets
+        </span>
         <Link
-          href="/demo"
-          className="group inline-flex items-center gap-1.5 text-center hover:underline"
+          href="/countries"
+          className="group inline-flex shrink-0 items-center gap-1.5 font-medium hover:underline"
         >
-          <span>
-            Explore how Vaskodigama turns shipment information into clearer
-            market decisions.
-          </span>
+          <span>View country coverage</span>
           <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-0.5" aria-hidden />
         </Link>
         <button

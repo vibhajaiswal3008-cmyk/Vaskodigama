@@ -1,22 +1,23 @@
 import type { Metadata } from "next";
-import "@/components/analytics/analytics.css";
 import { DashboardPageHeader } from "@/components/dashboard/page-header";
-import { AnalyticsDashboard } from "@/components/analytics/analytics-dashboard";
+import { TradeAnalytics } from "@/components/dashboard/trade-analytics";
+import { tradeData } from "@/lib/data";
 
 export const metadata: Metadata = {
   title: "Trade Analytics",
   description:
-    "Deep trade-analytics workspace — overview, geography, products, exporters, importers, supply chain and a shipment-level data explorer.",
+    "An analytical workspace across markets, companies, products and transaction-level records. All figures are illustrative demo data.",
 };
 
-export default function AnalyticsPage() {
+export default async function AnalyticsPage() {
+  const summary = await tradeData.getTradeAnalytics();
   return (
     <>
       <DashboardPageHeader
         title="Trade Analytics"
-        description="A deep analytical workspace across markets, products, partners and shipments. All figures are illustrative demo data."
+        description="Move between markets, companies, products and transaction-level records in one connected view. All figures are illustrative demo data."
       />
-      <AnalyticsDashboard />
+      <TradeAnalytics summary={summary} />
     </>
   );
 }

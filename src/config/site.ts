@@ -34,7 +34,7 @@ export const mainNav: NavItem[] = [
   },
   {
     label: "Solutions",
-    href: "/solutions/exporters",
+    href: "/solutions",
     description: "Tailored workflows by role.",
     children: [
       {
@@ -60,14 +60,19 @@ export const mainNav: NavItem[] = [
     ],
   },
   {
-    label: "Industries",
-    href: "/industries",
-    description: "Analytical workspaces per sector.",
+    label: "Countries",
+    href: "/countries",
+    description: "Demonstration coverage across 40 markets.",
   },
   {
-    label: "Data",
-    href: "/data",
-    description: "What stands behind every insight.",
+    label: "Features",
+    href: "/features",
+    description: "What the demo does today, and what's planned.",
+  },
+  {
+    label: "Pricing",
+    href: "/pricing",
+    description: "Access models for individuals, teams and enterprises.",
   },
   {
     label: "Resources",
@@ -86,10 +91,11 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
   {
     title: "Platform",
     items: [
-      { label: "Overview", href: "/platform" },
-      { label: "Global Trade Search", href: "/platform#search" },
+      { label: "Explore Data", href: "/explore" },
+      { label: "Dashboard", href: "/dashboard" },
+      { label: "Features", href: "/features" },
+      { label: "Pricing", href: "/pricing" },
       { label: "Opportunity Score", href: "/platform#opportunity-score" },
-      { label: "Explore demo", href: "/demo" },
     ],
   },
   {
@@ -104,6 +110,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
   {
     title: "Explore",
     items: [
+      { label: "Countries", href: "/countries" },
       { label: "Industries", href: "/industries" },
       { label: "Data transparency", href: "/data" },
       { label: "Resources", href: "/resources" },
@@ -117,6 +124,15 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
       { label: "Contact", href: "/contact" },
       { label: "Privacy", href: "/privacy" },
       { label: "Terms", href: "/terms" },
+    ],
+  },
+  {
+    title: "Get started",
+    items: [
+      { label: "Sign in", href: "/login" },
+      { label: "Create account", href: "/signup" },
+      { label: "Request a demo", href: "/contact" },
+      { label: "Request a custom plan", href: "/pricing" },
     ],
   },
 ];
