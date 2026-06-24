@@ -60,7 +60,7 @@ export function Header() {
         <div className="ml-auto hidden items-center gap-2 lg:flex">
           <Link
             href="/login"
-            className="rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:text-navy"
+            className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:text-navy"
           >
             Sign in
           </Link>

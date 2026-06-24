@@ -211,19 +211,51 @@ h1, h2, h3, h4, h5 {
    On-brand only: blue → cyan gradients, navy depth, amber/green accents.
    No purple or neon (see CLAUDE.md). */
 
-/* Blue→cyan gradient text for display headings. */
+/* Blue→cyan gradient text for display headings. A solid `color` fallback is
+   set first so the text is NEVER invisible if background-clip:text is
+   unsupported; -webkit-text-fill-color makes it transparent only where clip
+   works. */
 .text-gradient {
+  color: var(--primary);
   background-image: linear-gradient(100deg, var(--primary) 0%, #2d8cff 45%, var(--chart-2) 100%);
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 .text-gradient-light {
-  background-image: linear-gradient(100deg, #8fd0ff 0%, #ffffff 45%, #b6f0f6 100%);
+  color: #bfe0ff;
+  background-image: linear-gradient(100deg, #2d8cff 0%, #1cc8d7 100%);
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
+
+/* Light, vibrant hero/header surface — replaces the heavy dark navy. Soft ice
+   base with restrained blue + cyan glows so text stays high-contrast navy. */
+.surface-hero-light {
+  background-color: var(--surface);
+  background-image:
+    radial-gradient(48% 60% at 10% 0%, rgba(20, 110, 245, 0.14), transparent 62%),
+    radial-gradient(44% 56% at 92% 4%, rgba(28, 200, 215, 0.16), transparent 60%),
+    radial-gradient(60% 70% at 78% 110%, rgba(45, 140, 255, 0.10), transparent 64%),
+    linear-gradient(180deg, #ffffff 0%, var(--surface) 100%);
+}
+/* Faint blue route grid for light surfaces. */
+.bg-route-grid-light {
+  background-image:
+    linear-gradient(rgba(20, 110, 245, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 110, 245, 0.05) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+/* Scroll-reveal entrance (toggled by the Reveal component; reduced-motion safe
+   because the global rule zeroes the duration). */
+@keyframes vdg-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: none; }
+}
+.reveal-init { opacity: 0; }
+.reveal-in { animation: vdg-fade-up 0.6s var(--ease) both; }
 
 /* Gradient primary action. */
 .btn-gradient {

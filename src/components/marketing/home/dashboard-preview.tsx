@@ -6,7 +6,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DemandChart } from "@/components/charts/charts";
 import { HorizontalBars } from "@/components/charts/analytics-charts";
-import { getCountry } from "@/data/mock/countries";
+import { Flag } from "@/components/shared/flag";
 import { formatCompact, formatCurrency } from "@/lib/utils";
 
 /** Embedded, functional-looking dashboard preview for the homepage. */
@@ -85,17 +85,14 @@ function PartnerList({
     <div className="rounded-lg border border-border p-4">
       <p className="text-sm font-semibold text-navy">{title}</p>
       <ul className="mt-2 space-y-1.5">
-        {rows.map((p) => {
-          const country = getCountry(p.countryCode);
-          return (
-            <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
-              <span className="truncate text-navy">{p.name}</span>
-              <span className="shrink-0 text-xs text-muted">
-                {country?.flag} {formatCompact(p.value)}
-              </span>
-            </li>
-          );
-        })}
+        {rows.map((p) => (
+          <li key={p.id} className="flex items-center justify-between gap-2 text-sm">
+            <span className="truncate text-navy">{p.name}</span>
+            <span className="flex shrink-0 items-center gap-1.5 text-xs text-muted">
+              <Flag code={p.countryCode} className="h-3 w-5" /> {formatCompact(p.value)}
+            </span>
+          </li>
+        ))}
       </ul>
     </div>
   );

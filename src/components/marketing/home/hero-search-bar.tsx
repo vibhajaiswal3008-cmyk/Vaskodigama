@@ -51,12 +51,12 @@ export function HeroSearchBar() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-3xl">
+    <div className="w-full max-w-3xl">
       {/* Mode tabs */}
       <div
         role="tablist"
         aria-label="Search mode"
-        className="mb-3 flex flex-wrap justify-center gap-1.5"
+        className="mb-3 flex flex-wrap gap-1.5"
       >
         {MODES.map((m) => {
           const active = m.id === mode;
@@ -70,8 +70,8 @@ export function HeroSearchBar() {
               className={cn(
                 "rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors",
                 active
-                  ? "bg-white text-navy shadow-sm"
-                  : "bg-white/10 text-white/80 hover:bg-white/20 hover:text-white",
+                  ? "bg-primary text-primary-foreground shadow-xs"
+                  : "border border-border bg-background text-muted-strong hover:border-primary hover:text-navy",
               )}
             >
               {m.label}
@@ -87,7 +87,7 @@ export function HeroSearchBar() {
           e.preventDefault();
           go({ mode, q: q.trim() });
         }}
-        className="flex flex-col gap-2 rounded-[22px] border border-white/15 bg-white/95 p-2 shadow-lg backdrop-blur sm:flex-row sm:items-center sm:rounded-full sm:p-2"
+        className="flex flex-col gap-2 rounded-[22px] border border-border-strong bg-background p-2 shadow-lg sm:flex-row sm:items-center sm:rounded-full sm:p-2"
       >
         <label htmlFor="hero-q" className="sr-only">
           Search global trade by {mode}
@@ -115,20 +115,20 @@ export function HeroSearchBar() {
       </form>
 
       {/* Suggestions */}
-      <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-sm">
-        <span className="text-white/60">Try:</span>
+      <div className="mt-4 flex flex-wrap items-center gap-2 text-sm">
+        <span className="text-muted">Try:</span>
         {SUGGESTIONS.map((s) => (
           <button
             key={s.label}
             type="button"
             onClick={() => go({ mode: s.mode, q: s.q })}
-            className="rounded-full border border-white/20 bg-white/5 px-3 py-1 text-white/85 transition-colors hover:border-white/40 hover:bg-white/15 hover:text-white"
+            className="rounded-full border border-border bg-background px-3 py-1 text-muted-strong transition-colors hover:border-primary hover:text-navy"
           >
             {s.label}
           </button>
         ))}
       </div>
-      <p className="mt-3 text-center text-xs text-white/55">
+      <p className="mt-3 text-xs text-muted">
         HS Code or HSN Code supported · Illustrative demonstration data
       </p>
     </div>

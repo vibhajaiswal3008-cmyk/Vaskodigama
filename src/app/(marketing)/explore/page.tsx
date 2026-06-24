@@ -34,23 +34,23 @@ export default async function ExplorePage() {
 
   return (
     <>
-      {/* Bold header */}
-      <div className="surface-aurora relative overflow-hidden">
-        <div className="bg-route-grid absolute inset-0 opacity-60" aria-hidden />
+      {/* Light header */}
+      <div className="surface-hero-light relative overflow-hidden border-b border-border">
+        <div className="bg-route-grid-light absolute inset-0" aria-hidden />
         <div className="relative mx-auto max-w-6xl px-4 pb-24 pt-14 sm:px-6 sm:pt-16">
-          <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/85">
+          <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-soft-foreground">
             Explore data
           </span>
-          <h1 className="mt-4 text-3xl font-extrabold text-white sm:text-4xl lg:text-5xl">
+          <h1 className="mt-4 text-3xl font-extrabold text-navy sm:text-4xl lg:text-5xl">
             Search global trade records
           </h1>
-          <p className="mt-4 max-w-2xl text-lg text-white/75">
+          <p className="mt-4 max-w-2xl text-lg text-muted">
             Start with a product, HS Code, company or trade participant, then
             refine by country, route, date, quantity and value. Switch views,
             export a sample, and share the exact search by copying the URL.
           </p>
           <p
-            className="mt-5 inline-flex items-center gap-2 rounded-md border border-white/15 bg-white/10 px-3 py-2 text-sm text-white/85"
+            className="mt-5 inline-flex items-center gap-2 rounded-md border border-warning/30 bg-warning-soft px-3 py-2 text-sm text-warning"
             role="note"
           >
             <span className="size-1.5 rounded-full bg-warning" aria-hidden />

@@ -1,7 +1,9 @@
 import { Sparkles, ArrowRight, BarChart3, Layers3 } from "lucide-react";
 import { Section, Eyebrow } from "@/components/ui/misc";
 import { ButtonLink } from "@/components/ui/button";
+import { Reveal } from "@/components/shared/reveal";
 import { HeroSearchBar } from "@/components/marketing/home/hero-search-bar";
+import { HeroChart } from "@/components/marketing/home/hero-chart";
 import { StatBand } from "@/components/marketing/home/stat-band";
 import {
   SearchModes,
@@ -17,7 +19,6 @@ import { RolePathways } from "@/components/marketing/home/role-pathways";
 import { DashboardPreview } from "@/components/marketing/home/dashboard-preview";
 import { IndustriesGrid } from "@/components/marketing/sections";
 import { tradeData } from "@/lib/data";
-import { getCountry } from "@/data/mock/countries";
 
 export default async function HomePage() {
   const [summary, coverage, records] = await Promise.all([
@@ -33,7 +34,7 @@ export default async function HomePage() {
       .map((c) => ({
         slug: c.slug,
         name: c.name,
-        flag: c.flag,
+        code: c.code,
         region: c.region,
         recordCount: c.summary.recordCount,
         importValue: c.summary.importValue,
@@ -44,64 +45,84 @@ export default async function HomePage() {
       date: r.date,
       product: r.productDescription,
       hsCode: r.hsCode,
-      route: `${getCountry(r.originCountry)?.flag ?? ""} ${r.originCountry} → ${getCountry(r.destinationCountry)?.flag ?? ""} ${r.destinationCountry}`,
+      originCode: r.originCountry,
+      destinationCode: r.destinationCountry,
       value: r.tradeValue,
       flow: r.tradeFlow,
     })),
     buyers: summary.leadingBuyers.slice(0, 5).map((b) => ({
       id: b.id,
       name: b.name,
-      flag: b.flag,
+      code: b.countryCode,
       value: b.value,
     })),
     suppliers: summary.leadingSuppliers.slice(0, 5).map((s) => ({
       id: s.id,
       name: s.name,
-      flag: s.flag,
+      code: s.countryCode,
       value: s.value,
     })),
   };
 
   return (
     <>
-      {/* ── Hero: search-first ─────────────────────────────────────────── */}
-      <section className="surface-aurora relative overflow-hidden">
-        <div className="bg-route-grid absolute inset-0 opacity-70" aria-hidden />
-        <div className="relative mx-auto w-full max-w-5xl px-4 pb-44 pt-16 text-center sm:px-6 sm:pt-20">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/85">
-            <Sparkles className="size-3.5" aria-hidden /> Global trade intelligence
-          </span>
-          <h1 className="mx-auto mt-5 max-w-3xl text-4xl font-extrabold leading-[1.08] text-white sm:text-5xl lg:text-6xl">
-            Turn global trade records into{" "}
-            <span className="text-gradient-light">clear business opportunities</span>
-          </h1>
-          <p className="mx-auto mt-5 max-w-2xl text-lg text-white/75">
-            Search products, HS Codes, companies, buyers, suppliers and markets
-            across 40 countries — and turn complex shipment records into
-            decision-ready intelligence.
-          </p>
-          <div className="mt-9">
-            <HeroSearchBar />
+      {/* ── Hero: search-first, light & vibrant ────────────────────────── */}
+      <section className="surface-hero-light relative overflow-hidden border-b border-border">
+        <div className="bg-route-grid-light absolute inset-0" aria-hidden />
+        <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:py-20">
+          <div>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary-soft px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary-soft-foreground">
+              <Sparkles className="size-3.5" aria-hidden /> Global trade intelligence
+            </span>
+            <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] text-navy sm:text-5xl">
+              Turn global trade records into{" "}
+              <span className="text-gradient">clear business opportunities</span>
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-muted">
+              Search products, HS Codes, companies, buyers, suppliers and markets
+              across 40 countries — and turn complex shipment records into
+              decision-ready intelligence.
+            </p>
+            <div className="mt-8">
+              <HeroSearchBar />
+            </div>
+            <p className="mt-7 text-sm text-muted">
+              Built for exporters, importers, manufacturers, sourcing teams and market researchers.
+            </p>
           </div>
-          <p className="mt-8 text-sm text-white/60">
-            Built for exporters, importers, manufacturers, sourcing teams and market researchers.
-          </p>
+          <Reveal className="lg:pl-6">
+            <HeroChart />
+          </Reveal>
         </div>
       </section>
-
-      {/* ── Sample showcase, overlapping the hero ──────────────────────── */}
-      <div className="relative z-10 mx-auto -mt-32 w-full max-w-5xl px-4 sm:px-6">
-        <SampleShowcase data={showcase} />
-      </div>
 
       {/* ── Credibility band ───────────────────────────────────────────── */}
       <Section className="pt-14 sm:pt-16">
         <StatBand />
       </Section>
 
-      {/* ── Search modes ───────────────────────────────────────────────── */}
+      {/* ── Sample showcase ────────────────────────────────────────────── */}
       <Section muted className="py-16 sm:py-20">
-        <SearchModes />
+        <Reveal className="mb-8 max-w-2xl">
+          <Eyebrow>A look inside</Eyebrow>
+          <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+            Explore a sample of what&apos;s inside
+          </h2>
+          <p className="mt-3 text-muted">
+            Top markets, sample shipment records, and leading buyers &amp; suppliers —
+            all illustrative demonstration data.
+          </p>
+        </Reveal>
+        <Reveal>
+          <SampleShowcase data={showcase} />
+        </Reveal>
+      </Section>
+
+      {/* ── Search modes ───────────────────────────────────────────────── */}
+      <Section className="py-16 sm:py-20">
+        <Reveal>
+          <SearchModes />
+        </Reveal>
       </Section>
 
       {/* ── Value propositions ─────────────────────────────────────────── */}

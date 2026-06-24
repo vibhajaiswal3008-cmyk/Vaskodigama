@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState } from "@/components/ui/misc";
 import { IllustrativeBadge } from "@/components/shared/illustrative";
+import { Flag } from "@/components/shared/flag";
 import { Button } from "@/components/ui/button";
 import { cn, formatCompact, formatCurrency } from "@/lib/utils";
 
@@ -34,9 +35,7 @@ function CountryCard({ country }: { country: CoverageCountry }) {
       <div className="flex flex-col p-4">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2.5">
-            <span className="flex size-10 items-center justify-center rounded-xl bg-surface text-2xl leading-none" aria-hidden>
-              {country.flag}
-            </span>
+            <Flag code={country.code} title={country.name} className="h-8 w-11 shrink-0" />
             <div>
               <p className="font-semibold text-navy">{country.name}</p>
               <p className="text-xs text-muted">

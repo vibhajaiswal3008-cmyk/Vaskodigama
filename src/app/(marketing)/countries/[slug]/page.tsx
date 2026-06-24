@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { IllustrativeBadge } from "@/components/shared/illustrative";
+import { Flag } from "@/components/shared/flag";
 import { DemandChart } from "@/components/charts/charts";
 import { coverageCountries } from "@/config/coverage";
 import { buildCountryDetail } from "@/lib/country-detail";
@@ -34,7 +35,7 @@ function ValueList({
   rows,
   max,
 }: {
-  rows: { key: string; label: string; sub?: string; value: number }[];
+  rows: { key: string; label: string; sub?: string; value: number; code?: string }[];
   max: number;
 }) {
   return (
@@ -42,7 +43,10 @@ function ValueList({
       {rows.map((r) => (
         <li key={r.key}>
           <div className="flex items-center justify-between gap-3 text-sm">
-            <span className="truncate text-navy">{r.label}</span>
+            <span className="flex min-w-0 items-center gap-2 text-navy">
+              {r.code ? <Flag code={r.code} className="h-3.5 w-5 shrink-0" /> : null}
+              <span className="truncate">{r.label}</span>
+            </span>
             <span className="shrink-0 tabular-nums text-muted">
               {formatCurrency(r.value)}
             </span>
@@ -95,9 +99,7 @@ export default async function CountryDetailPage({
           </Link>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <span className="text-4xl leading-none" aria-hidden>
-                {country.flag}
-              </span>
+              <Flag code={country.code} title={country.name} className="h-9 w-14 shrink-0" />
               <div>
                 <h1 className="text-3xl font-bold text-navy sm:text-4xl">
                   {country.name}
@@ -195,7 +197,8 @@ export default async function CountryDetailPage({
                 max={originMax}
                 rows={detail.topOrigins.map((o) => ({
                   key: o.code,
-                  label: `${o.flag} ${o.name}`,
+                  code: o.code,
+                  label: o.name,
                   value: o.value,
                 }))}
               />
@@ -211,7 +214,8 @@ export default async function CountryDetailPage({
                 max={destMax}
                 rows={detail.topDestinations.map((o) => ({
                   key: o.code,
-                  label: `${o.flag} ${o.name}`,
+                  code: o.code,
+                  label: o.name,
                   value: o.value,
                 }))}
               />

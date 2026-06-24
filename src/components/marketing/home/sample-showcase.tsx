@@ -4,12 +4,13 @@ import * as React from "react";
 import Link from "next/link";
 import { ArrowUpRight, Anchor, Globe2, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Flag } from "@/components/shared/flag";
 import { cn, formatCompact } from "@/lib/utils";
 
 export interface ShowcaseCountry {
   slug: string;
   name: string;
-  flag: string;
+  code: string;
   region: string;
   recordCount: number;
   importValue: number;
@@ -21,7 +22,8 @@ export interface ShowcaseRecord {
   date: string;
   product: string;
   hsCode: string;
-  route: string;
+  originCode: string;
+  destinationCode: string;
   value: number;
   flow: "Import" | "Export";
 }
@@ -29,7 +31,7 @@ export interface ShowcaseRecord {
 export interface ShowcasePartner {
   id: string;
   name: string;
-  flag: string;
+  code: string;
   value: number;
 }
 
@@ -104,7 +106,7 @@ export function SampleShowcase({ data }: { data: ShowcaseData }) {
                   href={`/countries/${c.slug}`}
                   className="group flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:border-primary/40 hover:bg-surface"
                 >
-                  <span className="text-xl" aria-hidden>{c.flag}</span>
+                  <Flag code={c.code} title={c.name} className="h-5 w-7 shrink-0" />
                   <span className="min-w-0 flex-1">
                     <span className="flex items-center justify-between gap-2">
                       <span className="truncate font-semibold text-navy">{c.name}</span>
@@ -149,7 +151,13 @@ export function SampleShowcase({ data }: { data: ShowcaseData }) {
                     <td className="py-2.5 pr-3 tabular-nums text-muted">{r.date}</td>
                     <td className="py-2.5 pr-3 font-medium text-navy">{r.product}</td>
                     <td className="py-2.5 pr-3 tabular-nums text-muted">{r.hsCode}</td>
-                    <td className="py-2.5 pr-3 text-muted">{r.route}</td>
+                    <td className="py-2.5 pr-3 text-muted">
+                      <span className="flex items-center gap-1.5 whitespace-nowrap">
+                        <Flag code={r.originCode} className="h-3 w-5" /> {r.originCode}
+                        <span className="text-muted/60">→</span>
+                        <Flag code={r.destinationCode} className="h-3 w-5" /> {r.destinationCode}
+                      </span>
+                    </td>
                     <td className="py-2.5 pr-3">
                       <Badge tone={r.flow === "Import" ? "primary" : "success"}>{r.flow}</Badge>
                     </td>
@@ -196,8 +204,9 @@ function PartnerCol({ title, rows }: { title: string; rows: ShowcasePartner[] })
               {i + 1}
             </span>
             <span className="truncate text-navy">{p.name}</span>
-            <span className="ml-auto shrink-0 text-xs text-muted">
-              {p.flag} ${formatCompact(p.value)}
+            <span className="ml-auto flex shrink-0 items-center gap-1.5 text-xs text-muted">
+              <Flag code={p.code} className="h-3 w-5" />
+              ${formatCompact(p.value)}
             </span>
           </li>
         ))}
