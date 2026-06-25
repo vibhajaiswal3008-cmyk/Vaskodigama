@@ -9,6 +9,7 @@ import {
   Search,
   SlidersHorizontal,
   Table as TableIcon,
+  X,
 } from "lucide-react";
 import type {
   ExploreMode,
@@ -32,7 +33,31 @@ import { Badge } from "@/components/ui/badge";
 import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/misc";
 import { IllustrativeBadge } from "@/components/shared/illustrative";
+import { Flag } from "@/components/shared/flag";
 import { cn, formatCurrency, formatDate, formatNumber } from "@/lib/utils";
+
+/** Small section heading inside the filter panel. */
+function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-3 border-t border-border pt-4 first:border-0 first:pt-0">
+      <p className="text-xs font-semibold uppercase tracking-wide text-muted">{title}</p>
+      {children}
+    </div>
+  );
+}
+
+/** Origin/destination flag + name route, used in table cells and cards. */
+function ShipmentRoute({ origin, destination, compact }: { origin: string; destination: string; compact?: boolean }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
+      <Flag code={origin} className="h-3 w-4 shrink-0" />
+      <span>{compact ? origin : countryName(origin)}</span>
+      <span className="text-muted/60" aria-hidden>→</span>
+      <Flag code={destination} className="h-3 w-4 shrink-0" />
+      <span>{compact ? destination : countryName(destination)}</span>
+    </span>
+  );
+}
 import { toCsv, downloadCsv } from "@/lib/csv";
 
 const countryName = (code: string) =>
@@ -94,120 +119,120 @@ function FiltersForm({
 
   return (
     <div className="space-y-4">
-      <div>
-        <Label htmlFor="f-hs">HS Code</Label>
-        <Input
-          id="f-hs"
-          className="mt-1 h-10"
-          inputMode="numeric"
-          placeholder="e.g. 300490"
-          value={params.hsCode}
-          onChange={(e) => update({ hsCode: e.target.value })}
-        />
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
+      <FilterGroup title="Product classification">
         <div>
-          <Label htmlFor="f-origin">Origin country</Label>
-          <select
-            id="f-origin"
-            className={cn(field, "mt-1")}
-            value={params.origin}
-            onChange={(e) => update({ origin: e.target.value })}
-          >
-            <option value="">Any</option>
-            {coverageCountries.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.name}
-              </option>
-            ))}
-          </select>
+          <Label htmlFor="f-hs">HS Code</Label>
+          <Input
+            id="f-hs"
+            className="mt-1 h-10"
+            inputMode="numeric"
+            placeholder="e.g. 300490"
+            value={params.hsCode}
+            onChange={(e) => update({ hsCode: e.target.value })}
+          />
         </div>
-        <div>
-          <Label htmlFor="f-dest">Destination country</Label>
-          <select
-            id="f-dest"
-            className={cn(field, "mt-1")}
-            value={params.destination}
-            onChange={(e) => update({ destination: e.target.value })}
-          >
-            <option value="">Any</option>
-            {coverageCountries.map((c) => (
-              <option key={c.code} value={c.code}>
-                {c.name}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      </FilterGroup>
 
-      <div>
-        <span className="text-sm font-medium text-muted-strong">Trade flow</span>
-        <div role="group" aria-label="Trade flow" className="mt-1 inline-flex w-full rounded-md border border-border bg-surface p-0.5">
-          {(["all", "Import", "Export"] as const).map((f) => (
-            <button
-              key={f}
-              type="button"
-              aria-pressed={params.flow === f}
-              onClick={() => update({ flow: f })}
-              className={cn(
-                "flex-1 rounded px-2 py-1.5 text-sm font-medium capitalize transition-colors",
-                params.flow === f ? "bg-background text-navy shadow-xs" : "text-muted hover:text-navy",
-              )}
+      <FilterGroup title="Geography">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label htmlFor="f-origin">Origin country</Label>
+            <select
+              id="f-origin"
+              className={cn(field, "mt-1")}
+              value={params.origin}
+              onChange={(e) => update({ origin: e.target.value })}
             >
-              {f}
-            </button>
-          ))}
+              <option value="">Any</option>
+              {coverageCountries.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <Label htmlFor="f-dest">Destination country</Label>
+            <select
+              id="f-dest"
+              className={cn(field, "mt-1")}
+              value={params.destination}
+              onChange={(e) => update({ destination: e.target.value })}
+            >
+              <option value="">Any</option>
+              {coverageCountries.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {c.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
-      </div>
+      </FilterGroup>
 
-      <div>
-        <Label htmlFor="f-port">Port (origin or destination)</Label>
-        <Input
-          id="f-port"
-          className="mt-1 h-10"
-          placeholder="e.g. Rotterdam"
-          value={params.port}
-          onChange={(e) => update({ port: e.target.value })}
-        />
-      </div>
+      <FilterGroup title="Trade details">
+        <div>
+          <span className="text-sm font-medium text-muted-strong">Trade direction</span>
+          <div role="group" aria-label="Trade direction" className="mt-1 inline-flex w-full rounded-md border border-border bg-surface p-0.5">
+            {([
+              ["all", "All"],
+              ["Import", "Imports"],
+              ["Export", "Exports"],
+            ] as const).map(([value, label]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={params.flow === value}
+                onClick={() => update({ flow: value })}
+                className={cn(
+                  "flex-1 rounded px-2 py-1.5 text-sm font-medium transition-colors",
+                  params.flow === value ? "bg-background text-navy shadow-xs" : "text-muted hover:text-navy",
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
+        </div>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label htmlFor="f-from">Start date</Label>
-          <input id="f-from" type="date" className={cn(field, "mt-1")} value={params.dateFrom} onChange={(e) => update({ dateFrom: e.target.value })} />
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label htmlFor="f-from">Start date</Label>
+            <input id="f-from" type="date" className={cn(field, "mt-1")} value={params.dateFrom} max={params.dateTo || undefined} onChange={(e) => update({ dateFrom: e.target.value })} />
+          </div>
+          <div>
+            <Label htmlFor="f-to">End date</Label>
+            <input id="f-to" type="date" className={cn(field, "mt-1")} value={params.dateTo} min={params.dateFrom || undefined} onChange={(e) => update({ dateTo: e.target.value })} />
+          </div>
         </div>
-        <div>
-          <Label htmlFor="f-to">End date</Label>
-          <input id="f-to" type="date" className={cn(field, "mt-1")} value={params.dateTo} onChange={(e) => update({ dateTo: e.target.value })} />
-        </div>
-      </div>
+      </FilterGroup>
 
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label htmlFor="f-minq">Min quantity</Label>
-          <Input id="f-minq" className="mt-1 h-10" inputMode="numeric" value={params.minQty} onChange={(e) => update({ minQty: e.target.value })} />
+      <FilterGroup title="Quantity & value">
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label htmlFor="f-minq">Min quantity</Label>
+            <Input id="f-minq" className="mt-1 h-10" inputMode="numeric" value={params.minQty} onChange={(e) => update({ minQty: e.target.value })} />
+          </div>
+          <div>
+            <Label htmlFor="f-maxq">Max quantity</Label>
+            <Input id="f-maxq" className="mt-1 h-10" inputMode="numeric" value={params.maxQty} onChange={(e) => update({ maxQty: e.target.value })} />
+          </div>
         </div>
-        <div>
-          <Label htmlFor="f-maxq">Max quantity</Label>
-          <Input id="f-maxq" className="mt-1 h-10" inputMode="numeric" value={params.maxQty} onChange={(e) => update({ maxQty: e.target.value })} />
+        <div className="grid grid-cols-2 gap-2">
+          <div>
+            <Label htmlFor="f-minv">Min value (USD)</Label>
+            <Input id="f-minv" className="mt-1 h-10" inputMode="numeric" value={params.minValue} onChange={(e) => update({ minValue: e.target.value })} />
+          </div>
+          <div>
+            <Label htmlFor="f-maxv">Max value (USD)</Label>
+            <Input id="f-maxv" className="mt-1 h-10" inputMode="numeric" value={params.maxValue} onChange={(e) => update({ maxValue: e.target.value })} />
+          </div>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-2">
-        <div>
-          <Label htmlFor="f-minv">Min value (USD)</Label>
-          <Input id="f-minv" className="mt-1 h-10" inputMode="numeric" value={params.minValue} onChange={(e) => update({ minValue: e.target.value })} />
-        </div>
-        <div>
-          <Label htmlFor="f-maxv">Max value (USD)</Label>
-          <Input id="f-maxv" className="mt-1 h-10" inputMode="numeric" value={params.maxValue} onChange={(e) => update({ maxValue: e.target.value })} />
-        </div>
-      </div>
+      </FilterGroup>
 
       <Button type="button" variant="ghost" size="sm" onClick={onReset} className="w-full">
         <RotateCcw className="size-4" aria-hidden />
-        Reset all filters
+        Clear all filters
       </Button>
     </div>
   );
@@ -233,7 +258,7 @@ function RecordCard({
       <p className="mt-2 font-medium text-navy">{rec.productDescription}</p>
       <p className="text-xs text-muted">HS {rec.hsCode}</p>
       <p className="mt-2 text-sm text-muted">
-        {countryName(rec.originCountry)} → {countryName(rec.destinationCountry)}
+        <ShipmentRoute origin={rec.originCountry} destination={rec.destinationCountry} />
       </p>
       <div className="mt-2 flex items-center justify-between text-sm">
         <span className="tabular-nums text-muted">{formatNumber(rec.quantity)} {rec.unit}</span>
@@ -309,10 +334,26 @@ export function ExploreWorkspace({
   }
 
   const activeFilterCount = [
-    params.hsCode, params.origin, params.destination, params.port,
+    params.hsCode, params.origin, params.destination,
     params.dateFrom, params.dateTo, params.minQty, params.maxQty,
     params.minValue, params.maxValue,
   ].filter(Boolean).length + (params.flow !== "all" ? 1 : 0);
+
+  // Active-filter chips shown above the results (each removable).
+  const modeLabel =
+    EXPLORE_MODES.find((m) => m.id === params.mode)?.label ?? "Search";
+  const chips: { key: string; label: string; clear: () => void }[] = [];
+  if (params.q) chips.push({ key: "q", label: `${modeLabel}: ${params.q}`, clear: () => update({ q: "" }) });
+  if (params.hsCode) chips.push({ key: "hs", label: `HS Code: ${params.hsCode}`, clear: () => update({ hsCode: "" }) });
+  if (params.origin) chips.push({ key: "o", label: `Origin: ${countryName(params.origin)}`, clear: () => update({ origin: "" }) });
+  if (params.destination) chips.push({ key: "d", label: `Destination: ${countryName(params.destination)}`, clear: () => update({ destination: "" }) });
+  if (params.flow !== "all") chips.push({ key: "f", label: `Flow: ${params.flow}`, clear: () => update({ flow: "all" }) });
+  if (params.dateFrom) chips.push({ key: "df", label: `From ${params.dateFrom}`, clear: () => update({ dateFrom: "" }) });
+  if (params.dateTo) chips.push({ key: "dt", label: `To ${params.dateTo}`, clear: () => update({ dateTo: "" }) });
+  if (params.minQty) chips.push({ key: "mq", label: `Min qty ${params.minQty}`, clear: () => update({ minQty: "" }) });
+  if (params.maxQty) chips.push({ key: "xq", label: `Max qty ${params.maxQty}`, clear: () => update({ maxQty: "" }) });
+  if (params.minValue) chips.push({ key: "mv", label: `Min value ${params.minValue}`, clear: () => update({ minValue: "" }) });
+  if (params.maxValue) chips.push({ key: "xv", label: `Max value ${params.maxValue}`, clear: () => update({ maxValue: "" }) });
 
   return (
     <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-6">
@@ -368,7 +409,7 @@ export function ExploreWorkspace({
         {/* Toolbar */}
         <div className="mt-3 flex flex-wrap items-center gap-2">
           <p className="text-sm text-muted" aria-live="polite">
-            <span className="font-medium text-navy">{formatNumber(filtered.length)}</span> records
+            <span className="text-base font-semibold tabular-nums text-navy">{formatNumber(filtered.length)}</span> shipment records
           </p>
 
           <button
@@ -456,14 +497,44 @@ export function ExploreWorkspace({
           </div>
         </div>
 
+        {/* Active filter chips */}
+        {chips.length > 0 ? (
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
+            <span className="text-xs font-medium text-muted">Active filters:</span>
+            {chips.map((chip) => (
+              <span
+                key={chip.key}
+                className="inline-flex items-center gap-1 rounded-full bg-primary-soft py-1 pl-2.5 pr-1 text-xs font-medium text-primary-soft-foreground"
+              >
+                {chip.label}
+                <button
+                  type="button"
+                  onClick={chip.clear}
+                  aria-label={`Remove filter ${chip.label}`}
+                  className="rounded-full p-0.5 hover:bg-primary/15"
+                >
+                  <X className="size-3" aria-hidden />
+                </button>
+              </span>
+            ))}
+            <button
+              type="button"
+              onClick={reset}
+              className="ml-1 text-xs font-medium text-muted hover:text-danger"
+            >
+              Clear all
+            </button>
+          </div>
+        ) : null}
+
         {/* Results */}
         <div className="mt-3">
           {filtered.length === 0 ? (
             <EmptyState
-              title="No trade records match these filters"
-              description="Try removing a location filter, expanding the date range or using a broader product term."
+              title="No matching shipment records"
+              description="Try removing a filter, expanding the date range or searching with a broader product term."
               action={
-                <Button variant="outline" size="sm" onClick={reset}>Clear filters</Button>
+                <Button variant="outline" size="sm" onClick={reset}>Clear all filters</Button>
               }
             />
           ) : view === "cards" ? (
@@ -498,11 +569,23 @@ export function ExploreWorkspace({
                   {pageRows.map((rec) => (
                     <tr key={rec.id} className="border-b border-border/60 last:border-0 hover:bg-surface">
                       <td className="whitespace-nowrap px-3 py-2.5 text-muted">{formatDate(rec.date)}</td>
-                      <td className="px-3 py-2.5 text-navy">{rec.productDescription}</td>
-                      <td className="px-3 py-2.5 tabular-nums text-muted">{rec.hsCode}</td>
-                      <td className="px-3 py-2.5 text-muted">{rec.importer}</td>
-                      <td className="px-3 py-2.5 text-muted">{rec.exporter}</td>
-                      <td className="whitespace-nowrap px-3 py-2.5 text-muted">{rec.originCountry} → {rec.destinationCountry}</td>
+                      <td className="px-3 py-2.5 text-navy">
+                        <span className="block max-w-[220px] truncate font-medium" title={rec.productDescription}>
+                          {rec.productDescription}
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5">
+                        <span className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs tabular-nums text-muted-strong">{rec.hsCode}</span>
+                      </td>
+                      <td className="px-3 py-2.5 text-muted">
+                        <span className="block max-w-[160px] truncate" title={rec.importer}>{rec.importer}</span>
+                      </td>
+                      <td className="px-3 py-2.5 text-muted">
+                        <span className="block max-w-[160px] truncate" title={rec.exporter}>{rec.exporter}</span>
+                      </td>
+                      <td className="px-3 py-2.5 text-muted">
+                        <ShipmentRoute origin={rec.originCountry} destination={rec.destinationCountry} compact />
+                      </td>
                       {showCol("originPort") ? <td className="px-3 py-2.5 text-muted">{rec.originPort}</td> : null}
                       {showCol("destinationPort") ? <td className="px-3 py-2.5 text-muted">{rec.destinationPort}</td> : null}
                       <td className="px-3 py-2.5 text-right tabular-nums text-muted">{formatNumber(rec.quantity)} {rec.unit}</td>
@@ -525,7 +608,7 @@ export function ExploreWorkspace({
         {filtered.length > 0 ? (
           <div className="mt-4 flex items-center justify-between gap-2">
             <span className="text-sm text-muted">
-              Page {safePage} of {pageCount} · {formatNumber(filtered.length)} records
+              Page {safePage} of {pageCount} · {formatNumber(filtered.length)} shipment records
             </span>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => update({ page: Math.max(1, safePage - 1) })} disabled={safePage <= 1}>
@@ -544,7 +627,7 @@ export function ExploreWorkspace({
         <FiltersForm params={params} update={update} onReset={reset} />
         <div className="mt-4">
           <Button className="w-full" onClick={() => setDrawerOpen(false)}>
-            Show {formatNumber(filtered.length)} records
+            Show {formatNumber(filtered.length)} shipment records
           </Button>
         </div>
       </Modal>

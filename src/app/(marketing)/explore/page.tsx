@@ -42,11 +42,11 @@ export default async function ExplorePage() {
             Explore data
           </span>
           <h1 className="mt-4 text-3xl font-extrabold text-navy sm:text-4xl lg:text-5xl">
-            Search global trade records
+            Explore shipment records
           </h1>
           <p className="mt-4 max-w-2xl text-lg text-muted">
-            Start with a product, HS Code, company or trade participant, then
-            refine by country, route, date, quantity and value. Switch views,
+            Search illustrative global trade records by product, HS Code,
+            company, country and trade direction — then refine, switch views,
             export a sample, and share the exact search by copying the URL.
           </p>
           <p
