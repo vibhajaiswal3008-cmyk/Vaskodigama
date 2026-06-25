@@ -17,11 +17,9 @@ import {
 import type {
   Country,
   HsCode,
-  Port,
   Product,
   SearchQuery,
   SearchType,
-  SubRegion,
 } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Select, Label } from "@/components/ui/input";
@@ -36,8 +34,6 @@ export interface GlobalTradeSearchProps {
   countries: Country[];
   products: Product[];
   hsCodes: HsCode[];
-  subRegions: SubRegion[];
-  ports: Port[];
   variant?: "hero" | "full" | "compact";
   resultPath?: string;
   initialQuery?: SearchQuery;
@@ -56,8 +52,6 @@ export function GlobalTradeSearch({
   countries,
   products,
   hsCodes,
-  subRegions,
-  ports,
   variant = "full",
   resultPath = "/dashboard/search",
   initialQuery,
@@ -136,22 +130,7 @@ export function GlobalTradeSearch({
       .filter((h): h is HsCode => Boolean(h));
   }, [hsCodes, query.type, selectedProduct]);
 
-  // --- Country / state / port options --------------------------------------
-  const originStates = React.useMemo(
-    () => subRegions.filter((s) => s.countryCode === query.originCountry),
-    [subRegions, query.originCountry],
-  );
   const originCountry = countries.find((c) => c.code === query.originCountry);
-  const relevantPorts = React.useMemo(
-    () =>
-      ports.filter(
-        (p) =>
-          !query.originCountry ||
-          p.countryCode === query.originCountry ||
-          p.countryCode === query.destinationCountry,
-      ),
-    [ports, query.originCountry, query.destinationCountry],
-  );
 
   const summary = buildQuerySummary({ ...query, hsCode: confirmedHs });
 
@@ -163,7 +142,7 @@ export function GlobalTradeSearch({
     chips.push({
       key: "origin",
       label: `From ${originCountry?.name ?? query.originCountry}`,
-      clear: () => set({ originCountry: undefined, subRegion: undefined }),
+      clear: () => set({ originCountry: undefined }),
     });
   if (query.destinationCountry)
     chips.push({
@@ -171,10 +150,6 @@ export function GlobalTradeSearch({
       label: `Into ${countries.find((c) => c.code === query.destinationCountry)?.name}`,
       clear: () => set({ destinationCountry: undefined }),
     });
-  if (query.subRegion)
-    chips.push({ key: "region", label: query.subRegion, clear: () => set({ subRegion: undefined }) });
-  if (query.port)
-    chips.push({ key: "port", label: query.port, clear: () => set({ port: undefined }) });
 
   const canSearch =
     (query.type === "country" && !!query.originCountry) || query.term.trim().length > 0;
@@ -333,14 +308,14 @@ export function GlobalTradeSearch({
 
       {/* Quick country fields (always visible) */}
       {query.type !== "country" ? (
-        <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <CountryField
             id="gts-origin"
             label="Exporting from"
             hint="The country goods are shipped from."
             value={query.originCountry ?? ""}
             countries={countries}
-            onChange={(code) => set({ originCountry: code, subRegion: undefined })}
+            onChange={(code) => set({ originCountry: code })}
           />
           <CountryField
             id="gts-dest"
@@ -350,14 +325,6 @@ export function GlobalTradeSearch({
             countries={countries}
             onChange={(code) => set({ destinationCountry: code })}
           />
-          {!compact ? (
-            <StateField
-              originCountry={originCountry}
-              states={originStates}
-              value={query.subRegion ?? ""}
-              onChange={(name) => set({ subRegion: name || undefined })}
-            />
-          ) : null}
         </div>
       ) : null}
 
@@ -380,7 +347,7 @@ export function GlobalTradeSearch({
       {advancedOpen && !compact ? (
         <div
           id="gts-advanced"
-          className="mt-3 grid gap-3 rounded-lg border border-border bg-surface p-3 sm:grid-cols-2 lg:grid-cols-4"
+          className="mt-3 grid gap-3 rounded-lg border border-border bg-surface p-3 sm:grid-cols-2 lg:grid-cols-3"
         >
           <div>
             <Label htmlFor="gts-dir">Trade direction</Label>
@@ -393,23 +360,6 @@ export function GlobalTradeSearch({
               <option value="import">Imports</option>
               <option value="export">Exports</option>
             </Select>
-          </div>
-          <div>
-            <Label htmlFor="gts-port">Port</Label>
-            <Select
-              id="gts-port"
-              className="mt-1"
-              value={query.port ?? ""}
-              onChange={(e) => set({ port: e.target.value || undefined })}
-            >
-              <option value="">All ports</option>
-              {relevantPorts.map((p) => (
-                <option key={p.id} value={p.name}>
-                  {p.name}
-                </option>
-              ))}
-            </Select>
-            <p className="mt-1 text-xs text-muted">Port data is illustrative.</p>
           </div>
           <div>
             <Label htmlFor="gts-range">Date range</Label>
@@ -554,59 +504,6 @@ function CountryField({
           ))}
         </optgroup>
       </Select>
-    </div>
-  );
-}
-
-function StateField({
-  originCountry,
-  states,
-  value,
-  onChange,
-}: {
-  originCountry?: Country;
-  states: SubRegion[];
-  value: string;
-  onChange: (name: string) => void;
-}) {
-  const supported = originCountry?.hasStateData && states.length > 0;
-  return (
-    <div>
-      <Label htmlFor="gts-state" className="flex items-center gap-1">
-        State / region
-        <InfoTooltip label="State coverage">
-          Subnational (state) coverage depends on the data source and is not
-          available for every country.
-        </InfoTooltip>
-      </Label>
-      <Select
-        id="gts-state"
-        className="mt-1"
-        value={value}
-        disabled={!supported}
-        onChange={(e) => onChange(e.target.value)}
-      >
-        {!originCountry ? (
-          <option value="">Select an exporting country first</option>
-        ) : supported ? (
-          <>
-            <option value="">All states / regions</option>
-            {states.map((s) => (
-              <option key={s.id} value={s.name}>
-                {s.name}
-              </option>
-            ))}
-          </>
-        ) : (
-          <option value="">State data not available here</option>
-        )}
-      </Select>
-      {originCountry && !supported ? (
-        <p className="mt-1 text-xs text-muted">
-          State-level coverage isn’t available for {originCountry.name} in this
-          dataset.
-        </p>
-      ) : null}
     </div>
   );
 }

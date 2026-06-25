@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowUpRight, Anchor, Globe2, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Flag } from "@/components/shared/flag";
+import { MarketPulse } from "@/components/marketing/home/market-pulse";
 import { cn, formatCompact } from "@/lib/utils";
 
 export interface ShowcaseCountry {
@@ -100,7 +101,7 @@ export function SampleShowcase({ data }: { data: ShowcaseData }) {
       <div className="p-4 sm:p-5">
         {tab === "markets" ? (
           <ul className="space-y-2.5">
-            {data.countries.map((c) => (
+            {data.countries.map((c, i) => (
               <li key={c.slug}>
                 <Link
                   href={`/countries/${c.slug}`}
@@ -112,12 +113,12 @@ export function SampleShowcase({ data }: { data: ShowcaseData }) {
                       <span className="truncate font-semibold text-navy">{c.name}</span>
                       <span className="shrink-0 text-xs text-muted">{c.region}</span>
                     </span>
-                    <span className="mt-1.5 block h-1.5 w-full overflow-hidden rounded-full bg-surface-2" aria-hidden>
-                      <span
-                        className="block h-full rounded-full bg-gradient-to-r from-primary to-[var(--chart-2)]"
-                        style={{ width: `${Math.max(8, (c.importValue / maxImport) * 100)}%` }}
-                      />
-                    </span>
+                    <MarketPulse
+                      value={c.importValue}
+                      max={maxImport}
+                      label={c.name}
+                      index={i}
+                    />
                   </span>
                   <span className="shrink-0 text-right">
                     <span className="block text-sm font-semibold tabular-nums text-navy">

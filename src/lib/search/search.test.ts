@@ -44,8 +44,6 @@ describe("query params round-trip", () => {
       direction: "import",
       originCountry: "BR",
       destinationCountry: "US",
-      subRegion: "California",
-      port: "Los Angeles",
       dateRange: "3m",
     };
     const parsed = paramsToQuery(queryToParams(q));

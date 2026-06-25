@@ -1,16 +1,10 @@
-import {
-  countries,
-  hsCodes,
-  ports,
-  products,
-  subRegions,
-} from "@/lib/data";
+import { countries, hsCodes, products } from "@/lib/data";
 import {
   GlobalTradeSearch,
   type GlobalTradeSearchProps,
 } from "./global-trade-search";
 
-type RefKeys = "countries" | "products" | "hsCodes" | "subRegions" | "ports";
+type RefKeys = "countries" | "products" | "hsCodes";
 
 /**
  * Server wrapper that supplies reference data (from the data-access layer) to
@@ -25,8 +19,6 @@ export function TradeSearch(props: Omit<GlobalTradeSearchProps, RefKeys>) {
       countries={countries}
       products={products}
       hsCodes={hsCodes}
-      subRegions={subRegions}
-      ports={ports}
     />
   );
 }

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, within } from "@testing-library/react";
 import { GlobalTradeSearch } from "./global-trade-search";
 import { ToastProvider } from "@/components/shared/toast";
-import { countries, hsCodes, products, ports, subRegions } from "@/lib/data";
+import { countries, hsCodes, products } from "@/lib/data";
 
 const push = vi.fn();
 vi.mock("next/navigation", () => ({
@@ -16,8 +16,6 @@ function renderSearch() {
         countries={countries}
         products={products}
         hsCodes={hsCodes}
-        subRegions={subRegions}
-        ports={ports}
         variant="full"
       />
     </ToastProvider>,

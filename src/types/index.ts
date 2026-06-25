@@ -239,8 +239,6 @@ export interface SearchQuery {
   direction: TradeDirection;
   originCountry?: string;
   destinationCountry?: string;
-  subRegion?: string;
-  port?: string;
   dateRange: DateRangePreset | string;
 }
 

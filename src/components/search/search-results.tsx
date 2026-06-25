@@ -12,7 +12,7 @@ import {
   TrendingUp,
   Minus,
 } from "lucide-react";
-import type { Company, Market, SearchResult, ShipmentRecord } from "@/types";
+import type { Company, Market, SearchResult } from "@/types";
 import { makeCompanyColumns, makeShipmentColumns } from "@/components/tables/columns";
 import { Tabs } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -38,8 +38,6 @@ const TABS = [
   "shipments",
   "prices",
   "countries",
-  "states",
-  "ports",
   "competitors",
 ] as const;
 type TabId = (typeof TABS)[number];
@@ -52,8 +50,6 @@ const tabLabels: Record<TabId, string> = {
   shipments: "Shipments",
   prices: "Prices",
   countries: "Countries",
-  states: "States & regions",
-  ports: "Ports",
   competitors: "Competitors",
 };
 
@@ -195,8 +191,6 @@ export function SearchResults({ result }: { result: SearchResult }) {
         {tab === "countries" ? (
           <MarketsTab markets={result.markets} onWhy={setWhyMarket} variant="countries" />
         ) : null}
-        {tab === "states" ? <StatesTab /> : null}
-        {tab === "ports" ? <PortsTab shipments={result.shipments} /> : null}
         {tab === "competitors" ? (
           <Card>
             <CardHeader className="flex-row items-center justify-between">
@@ -453,54 +447,4 @@ function PricesTab({ result }: { result: SearchResult }) {
   );
 }
 
-function StatesTab() {
-  const states = [
-    { name: "Gujarat", share: 38 },
-    { name: "Maharashtra", share: 27 },
-    { name: "Punjab", share: 21 },
-    { name: "Other", share: 14 },
-  ];
-  return (
-    <Card>
-      <CardHeader className="flex-row items-center justify-between">
-        <CardTitle as="h2">States &amp; regions</CardTitle>
-        <IllustrativeBadge />
-      </CardHeader>
-      <CardContent>
-        <p className="mb-3 text-sm text-muted">
-          Subnational coverage is illustrative and available for selected
-          countries only. Here, exporting-state breakdown for India.
-        </p>
-        <ComparisonBar
-          data={states.map((s) => ({ name: s.name, value: s.share }))}
-          label={`Illustrative exporting-state share: ${states.map((s) => `${s.name} ${s.share}%`).join(", ")}.`}
-        />
-      </CardContent>
-    </Card>
-  );
-}
-
-function PortsTab({ shipments }: { shipments: ShipmentRecord[] }) {
-  const byPort = new Map<string, number>();
-  for (const s of shipments) byPort.set(s.port, (byPort.get(s.port) ?? 0) + 1);
-  const data = Array.from(byPort.entries()).map(([name, value]) => ({ name, value }));
-  return (
-    <Card>
-      <CardHeader className="flex-row items-center justify-between">
-        <CardTitle as="h2">Ports</CardTitle>
-        <IllustrativeBadge />
-      </CardHeader>
-      <CardContent>
-        <p className="mb-3 text-sm text-muted">
-          Illustrative shipment counts by port. Port-level data depends on the
-          source and is shown for demonstration only.
-        </p>
-        <ComparisonBar
-          data={data}
-          label={`Illustrative shipments by port: ${data.map((d) => `${d.name} ${d.value}`).join(", ")}.`}
-        />
-      </CardContent>
-    </Card>
-  );
-}
 

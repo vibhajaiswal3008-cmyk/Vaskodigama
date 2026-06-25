@@ -8,7 +8,6 @@ import { StatBand } from "@/components/marketing/home/stat-band";
 import {
   SearchModes,
   ValueProps,
-  PlannedCapabilities,
   BoldFinalCta,
 } from "@/components/marketing/home/vibrant-sections";
 import {
@@ -183,11 +182,6 @@ export default async function HomePage() {
       {/* ── Industries ─────────────────────────────────────────────────── */}
       <Section muted>
         <IndustriesGrid />
-      </Section>
-
-      {/* ── Roadmap ────────────────────────────────────────────────────── */}
-      <Section>
-        <PlannedCapabilities />
       </Section>
 
       {/* ── Final CTA ──────────────────────────────────────────────────── */}

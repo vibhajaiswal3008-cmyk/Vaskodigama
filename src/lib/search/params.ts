@@ -9,8 +9,6 @@ export function queryToParams(q: SearchQuery): URLSearchParams {
   p.set("dir", q.direction);
   if (q.originCountry) p.set("origin", q.originCountry);
   if (q.destinationCountry) p.set("dest", q.destinationCountry);
-  if (q.subRegion) p.set("region", q.subRegion);
-  if (q.port) p.set("port", q.port);
   p.set("range", String(q.dateRange));
   return p;
 }
@@ -46,8 +44,6 @@ export function paramsToQuery(
     direction,
     originCountry: get("origin"),
     destinationCountry: get("dest"),
-    subRegion: get("region"),
-    port: get("port"),
     dateRange: range,
   };
 }

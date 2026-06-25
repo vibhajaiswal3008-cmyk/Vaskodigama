@@ -34,16 +34,15 @@ export function buildQuerySummary(q: SearchQuery): string {
 
   const origin = countryName(q.originCountry);
   const dest = countryName(q.destinationCountry);
-  const sub = q.subRegion ? ` (${q.subRegion})` : "";
 
   let route = "";
   if (q.direction === "import") {
-    if (dest && origin) route = ` into ${dest} from ${origin}${sub}`;
+    if (dest && origin) route = ` into ${dest} from ${origin}`;
     else if (dest) route = ` into ${dest}`;
-    else if (origin) route = ` from ${origin}${sub}`;
+    else if (origin) route = ` from ${origin}`;
   } else {
-    if (origin && dest) route = ` from ${origin}${sub} to ${dest}`;
-    else if (origin) route = ` from ${origin}${sub}`;
+    if (origin && dest) route = ` from ${origin} to ${dest}`;
+    else if (origin) route = ` from ${origin}`;
     else if (dest) route = ` to ${dest}`;
   }
 
