@@ -128,6 +128,7 @@ export const footerNav: { title: string; items: NavItem[] }[] = [
     title: "Explore",
     items: [
       { label: "Countries", href: "/countries" },
+      { label: "Companies", href: "/companies" },
       { label: "Industries", href: "/industries" },
       { label: "Data transparency", href: "/data" },
       { label: "Resources", href: "/resources" },
