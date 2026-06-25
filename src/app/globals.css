@@ -248,24 +248,35 @@ h1, h2, h3, h4, h5 {
   background-size: 36px 36px;
 }
 
-/* Market-pulse visual (Top markets). Reduced-motion safe via the global rule
-   below, which zeroes these durations; the SMIL dot is gated off in JS. */
-.mp-draw { stroke-dasharray: 1; stroke-dashoffset: 1; }
-.mp-draw-in {
-  animation: mp-draw 1s var(--ease) forwards;
-  animation-delay: var(--mp-delay, 0s);
+/* Market sparkline (Top markets). One-time entrance only; reduced-motion safe
+   via the global rule below (durations zeroed) plus class gating in JS. */
+.spark-line { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.spark-line-in {
+  animation: spark-draw 0.7s var(--ease) forwards;
+  animation-delay: var(--spark-delay, 0s);
 }
-@keyframes mp-draw { to { stroke-dashoffset: 0; } }
-.mp-dest-pulse {
-  opacity: 0.3;
+@keyframes spark-draw { to { stroke-dashoffset: 0; } }
+.spark-area,
+.spark-end { opacity: 0; }
+.spark-area-in {
+  animation: spark-fade 0.6s var(--ease) forwards;
+  animation-delay: var(--spark-delay, 0s);
+}
+.spark-end-in {
+  animation: spark-fade 0.3s var(--ease) forwards;
+  animation-delay: calc(var(--spark-delay, 0s) + 0.55s);
+}
+@keyframes spark-fade { to { opacity: 1; } }
+.spark-pulse-in {
+  opacity: 0;
   transform-box: fill-box;
   transform-origin: center;
-  animation: mp-pulse 2.6s ease-in-out infinite;
-  animation-delay: calc(var(--mp-delay, 0s) + 1s);
+  animation: spark-pulse 0.9s ease-out 1 both;
+  animation-delay: calc(var(--spark-delay, 0s) + 0.65s);
 }
-@keyframes mp-pulse {
-  0%, 100% { opacity: 0.25; }
-  50% { opacity: 0.85; }
+@keyframes spark-pulse {
+  0% { opacity: 0.5; transform: scale(0.5); }
+  100% { opacity: 0; transform: scale(2.4); }
 }
 
 /* Scroll-reveal entrance (toggled by the Reveal component; reduced-motion safe

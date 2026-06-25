@@ -18,6 +18,7 @@ import { RolePathways } from "@/components/marketing/home/role-pathways";
 import { DashboardPreview } from "@/components/marketing/home/dashboard-preview";
 import { IndustriesGrid } from "@/components/marketing/sections";
 import { tradeData } from "@/lib/data";
+import { buildCountryDetail } from "@/lib/country-detail";
 
 export default async function HomePage() {
   const [summary, coverage, records] = await Promise.all([
@@ -38,6 +39,7 @@ export default async function HomePage() {
         recordCount: c.summary.recordCount,
         importValue: c.summary.importValue,
         exportValue: c.summary.exportValue,
+        trend: buildCountryDetail(c.slug)?.trend ?? [],
       })),
     records: records.slice(0, 6).map((r) => ({
       id: r.id,

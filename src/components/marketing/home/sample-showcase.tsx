@@ -5,7 +5,8 @@ import Link from "next/link";
 import { ArrowUpRight, Anchor, Globe2, Building2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Flag } from "@/components/shared/flag";
-import { MarketPulse } from "@/components/marketing/home/market-pulse";
+import { MarketRankCard } from "@/components/marketing/home/market-rank-card";
+import type { TrendPoint } from "@/components/marketing/home/market-sparkline";
 import { cn, formatCompact } from "@/lib/utils";
 
 export interface ShowcaseCountry {
@@ -16,6 +17,8 @@ export interface ShowcaseCountry {
   recordCount: number;
   importValue: number;
   exportValue: number;
+  /** Illustrative monthly import-value trend (empty → relative-value bar). */
+  trend: TrendPoint[];
 }
 
 export interface ShowcaseRecord {
@@ -100,33 +103,21 @@ export function SampleShowcase({ data }: { data: ShowcaseData }) {
 
       <div className="p-4 sm:p-5">
         {tab === "markets" ? (
-          <ul className="space-y-2.5">
+          <ul className="space-y-3">
             {data.countries.map((c, i) => (
               <li key={c.slug}>
-                <Link
-                  href={`/countries/${c.slug}`}
-                  className="group flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:border-primary/40 hover:bg-surface"
-                >
-                  <Flag code={c.code} title={c.name} className="h-5 w-7 shrink-0" />
-                  <span className="min-w-0 flex-1">
-                    <span className="flex items-center justify-between gap-2">
-                      <span className="truncate font-semibold text-navy">{c.name}</span>
-                      <span className="shrink-0 text-xs text-muted">{c.region}</span>
-                    </span>
-                    <MarketPulse
-                      value={c.importValue}
-                      max={maxImport}
-                      label={c.name}
-                      index={i}
-                    />
-                  </span>
-                  <span className="shrink-0 text-right">
-                    <span className="block text-sm font-semibold tabular-nums text-navy">
-                      ${formatCompact(c.importValue)}
-                    </span>
-                    <span className="block text-xs text-muted">import value</span>
-                  </span>
-                </Link>
+                <MarketRankCard
+                  rank={i + 1}
+                  slug={c.slug}
+                  name={c.name}
+                  code={c.code}
+                  region={c.region}
+                  importValue={c.importValue}
+                  max={maxImport}
+                  trend={c.trend}
+                  index={i}
+                  top={i === 0}
+                />
               </li>
             ))}
           </ul>
