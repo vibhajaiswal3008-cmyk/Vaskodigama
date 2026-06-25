@@ -9,10 +9,15 @@ import { ButtonLink } from "@/components/ui/button";
 import { mainNav, type NavItem } from "@/config/site";
 import { cn } from "@/lib/utils";
 
+/** Compare paths ignoring trailing slashes (static export uses trailingSlash). */
+const samePath = (a: string, b: string) =>
+  a.replace(/\/+$/, "") === b.replace(/\/+$/, "");
+
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -20,6 +25,27 @@ export function Header() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  // Lock background scroll + close on Escape while the mobile menu is open.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [mobileOpen]);
+
+  // Restore focus to the toggle after the menu closes.
+  function closeMobile() {
+    setMobileOpen(false);
+    toggleRef.current?.focus();
+  }
 
   return (
     <header
@@ -47,7 +73,7 @@ export function Header() {
                   href={item.href}
                   className={cn(
                     "rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:bg-surface hover:text-navy",
-                    pathname === item.href && "text-primary",
+                    samePath(pathname, item.href) && "text-primary",
                   )}
                 >
                   {item.label}
@@ -73,6 +99,7 @@ export function Header() {
         </div>
 
         <button
+          ref={toggleRef}
           type="button"
           className="ml-auto inline-flex items-center justify-center rounded-md p-2 text-navy hover:bg-surface lg:hidden"
           aria-expanded={mobileOpen}
@@ -85,7 +112,7 @@ export function Header() {
       </nav>
 
       {mobileOpen ? (
-        <MobileMenu pathname={pathname} onNavigate={() => setMobileOpen(false)} />
+        <MobileMenu pathname={pathname} onNavigate={closeMobile} />
       ) : null}
     </header>
   );
@@ -100,6 +127,9 @@ function DropdownNav({
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLLIElement>(null);
+  const active =
+    samePath(pathname, item.href) ||
+    (item.children?.some((c) => samePath(pathname, c.href)) ?? false);
 
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
@@ -124,7 +154,10 @@ function DropdownNav({
         aria-haspopup="true"
         onClick={() => setOpen((o) => !o)}
         onKeyDown={(e) => e.key === "Escape" && setOpen(false)}
-        className="inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:bg-surface hover:text-navy"
+        className={cn(
+          "inline-flex items-center gap-1 rounded-md px-3 py-2 text-sm font-medium hover:bg-surface hover:text-navy",
+          active ? "text-primary" : "text-muted-strong",
+        )}
       >
         {item.label}
         <ChevronDown
@@ -141,7 +174,7 @@ function DropdownNav({
                   href={child.href}
                   className={cn(
                     "block rounded-md px-3 py-2 hover:bg-surface",
-                    pathname === child.href && "bg-primary-soft",
+                    samePath(pathname, child.href) && "bg-primary-soft",
                   )}
                 >
                   <span className="block text-sm font-semibold text-navy">
@@ -185,7 +218,7 @@ function MobileMenu({
               href={item.href}
               className={cn(
                 "block rounded-md px-3 py-2 text-sm font-semibold text-navy hover:bg-surface",
-                pathname === item.href && "text-primary",
+                samePath(pathname, item.href) && "text-primary",
               )}
             >
               {item.label}

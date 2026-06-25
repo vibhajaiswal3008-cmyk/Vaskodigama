@@ -65,24 +65,41 @@ export const mainNav: NavItem[] = [
     description: "Demonstration coverage across 40 markets.",
   },
   {
-    label: "Features",
-    href: "/features",
-    description: "What the demo does today, and what's planned.",
-  },
-  {
-    label: "Pricing",
-    href: "/pricing",
-    description: "Access models for individuals, teams and enterprises.",
-  },
-  {
     label: "Resources",
     href: "/resources",
-    description: "Guides for first-time exporters and analysts.",
-  },
-  {
-    label: "About",
-    href: "/about",
-    description: "Why we built Vaskodigama.",
+    description: "Guides, features, pricing and company information.",
+    children: [
+      {
+        label: "Guides & resources",
+        href: "/resources",
+        description: "Help for first-time exporters and analysts.",
+      },
+      {
+        label: "Features",
+        href: "/features",
+        description: "What the demonstration does today.",
+      },
+      {
+        label: "Pricing",
+        href: "/pricing",
+        description: "Access models for individuals, teams and enterprises.",
+      },
+      {
+        label: "Industries",
+        href: "/industries",
+        description: "How different sectors use trade data.",
+      },
+      {
+        label: "Data transparency",
+        href: "/data",
+        description: "How the demonstration data is built.",
+      },
+      {
+        label: "About Vaskodigama",
+        href: "/about",
+        description: "Why we built Vaskodigama.",
+      },
+    ],
   },
 ];
 
