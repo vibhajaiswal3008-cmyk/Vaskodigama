@@ -33,9 +33,10 @@ test.describe("Vaskodigama smoke flows", () => {
 
   test("results tabs include buyers and suppliers", async ({ page }) => {
     await page.goto("/demo");
-    await expect(page.getByRole("tab", { name: "Buyers" })).toBeVisible();
-    await page.getByRole("tab", { name: "Buyers" }).click();
-    await expect(page.getByText(/Meridian Imports/)).toBeVisible();
+    await expect(page.getByRole("tab", { name: "Buyer Intelligence" })).toBeVisible();
+    await page.getByRole("tab", { name: "Buyer Intelligence" }).click();
+    await expect(page.getByRole("heading", { name: /Top buyers for/i })).toBeVisible();
+    await expect(page.getByRole("tab", { name: "Supplier Intelligence" })).toBeVisible();
   });
 
   test("demo login routes into the dashboard", async ({ page }) => {
