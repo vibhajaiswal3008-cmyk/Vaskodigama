@@ -87,7 +87,7 @@ export default async function PharmaLandingDraftPage() {
       </div>
 
       {/* ── 1/2/3. Hero with search + embedded metrics ──────────────────── */}
-      <section className="surface-aurora relative overflow-hidden">
+      <section id="top" className="surface-aurora relative overflow-hidden">
         <div className="bg-route-grid absolute inset-0 opacity-60" aria-hidden />
         <div className="relative mx-auto max-w-4xl px-4 pb-10 pt-16 text-center sm:px-6 lg:pt-20">
           <span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">

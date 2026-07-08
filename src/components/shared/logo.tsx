@@ -1,4 +1,8 @@
+"use client";
+
+import type { MouseEvent } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 /**
@@ -41,9 +45,27 @@ export function Logo({
   href?: string;
   showText?: boolean;
 }) {
+  // The pharma-landing draft isn't linked from site navigation yet, so its
+  // logo must not send reviewers off to the (different) real homepage —
+  // keep it anchored to this same page instead. Every other route keeps
+  // its normal `href` (defaults to "/").
+  const pathname = usePathname();
+  const isPharmaLanding = pathname?.startsWith("/pharma-landing");
+  const resolvedHref = isPharmaLanding ? "#top" : href;
+
+  // next/link doesn't reliably auto-scroll for a same-page hash target (the
+  // URL updates but the viewport doesn't move), so drive the scroll
+  // ourselves. `href="#top"` stays as a real fallback (no-JS, new-tab, etc).
+  function handleClick(e: MouseEvent<HTMLAnchorElement>) {
+    if (!isPharmaLanding) return;
+    e.preventDefault();
+    document.getElementById("top")?.scrollIntoView({ behavior: "instant" });
+  }
+
   return (
     <Link
-      href={href}
+      href={resolvedHref}
+      onClick={handleClick}
       className={cn(
         "inline-flex items-center font-heading text-xl font-extrabold tracking-tight text-navy",
         className,

@@ -1,14 +1,19 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowRight, X } from "lucide-react";
 import { useDismissible } from "@/hooks/use-dismissible";
 
 /** Subtle, dismissible announcement. No fake urgency. Remembers dismissal. */
 export function AnnouncementStrip() {
   const { dismissed, dismiss } = useDismissible("announcement");
+  const pathname = usePathname();
 
-  if (dismissed) return null;
+  // The pharma-landing draft renders its own in-page announcement strip
+  // (anchored to its own Global Coverage section); skip the sitewide one
+  // there so it doesn't duplicate it or link visitors off the draft page.
+  if (dismissed || pathname?.startsWith("/pharma-landing")) return null;
 
   return (
     <div className="bg-navy text-white">
