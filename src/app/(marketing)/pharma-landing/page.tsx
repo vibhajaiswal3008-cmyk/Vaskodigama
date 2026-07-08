@@ -6,10 +6,13 @@ import { Reveal } from "@/components/shared/reveal";
 import { PharmaLandingHeroSearch } from "@/components/marketing/pharma-landing/hero-search";
 import { MetricsBand } from "@/components/marketing/pharma-landing/metrics-band";
 import { SearchPreviewDashboard } from "@/components/marketing/pharma-landing/search-preview";
+import { AnnouncementStrip, HeroFloatingChips } from "@/components/marketing/pharma-landing/hero-extras";
 import {
   ProblemSolution,
   ProductCategories,
   KeyFeatures,
+  SearchJourney,
+  BuyerSupplierNetwork,
   UseCases,
   WhyVaskodigama,
   GlobalCoverage,
@@ -62,14 +65,22 @@ export default async function PharmaLandingDraftPage() {
 
   const recentRecords = exploreRecords.slice(0, 4).map((r) => ({
     id: r.id,
+    product: r.productDescription,
+    buyer: r.buyer,
+    supplier: r.supplier,
     originCode: r.originCountry,
     destinationCode: r.destinationCountry,
+    quantity: r.quantity,
+    unit: r.unit,
     value: r.tradeValue,
     date: r.date,
   }));
 
   return (
     <>
+      {/* ── Top announcement strip ───────────────────────────────────────── */}
+      <AnnouncementStrip />
+
       {/* ── Header note (draft only) ────────────────────────────────────── */}
       <div className="border-b border-border bg-warning-soft px-4 py-2 text-center text-xs font-medium text-warning">
         Draft preview — pharma-focused landing page, for review only.
@@ -91,7 +102,8 @@ export default async function PharmaLandingDraftPage() {
             trends, shipment records and market opportunities across global
             pharmaceutical trade.
           </p>
-          <Reveal className="mx-auto mt-8 max-w-2xl text-left">
+          <Reveal className="relative mx-auto mt-8 max-w-2xl text-left">
+            <HeroFloatingChips />
             <PharmaLandingHeroSearch />
           </Reveal>
           <div className="mt-6 flex flex-wrap justify-center gap-3">
@@ -123,32 +135,65 @@ export default async function PharmaLandingDraftPage() {
         <KeyFeatures />
       </Section>
 
-      {/* ── 7. Search experience preview ───────────────────────────────── */}
+      {/* ── 7. Search-to-insight journey ─────────────────────────────────── */}
       <Section className="py-16 sm:py-20">
-        <div className="grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Eyebrow>A look inside</Eyebrow>
+          <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+            From Search to Actionable Insight in Seconds
+          </h2>
+          <p className="mt-3 text-muted">
+            Vaskodigama doesn&apos;t hand you raw shipment rows — it returns
+            structured, decision-ready intelligence in a few clear steps.
+          </p>
+        </Reveal>
+        <div className="mt-12">
+          <SearchJourney />
+        </div>
+      </Section>
+
+      {/* ── 7b. Sample dashboard / result preview ────────────────────────── */}
+      <Section muted className="py-16 sm:py-20">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Eyebrow>Sample result</Eyebrow>
+          <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+            Search result for Metformin API
+          </h2>
+          <p className="mt-3 text-muted">
+            Not raw data — structured, decision-ready intelligence: buyers,
+            suppliers, markets, pricing and an Opportunity Score in one view.
+          </p>
+        </Reveal>
+        <Reveal delay={100} className="mx-auto mt-10 max-w-4xl">
+          <SearchPreviewDashboard
+            productName="Metformin (API)"
+            summary={summary}
+            buyerCount={buyers.length}
+            supplierCount={suppliers.length}
+            shipmentCount={shipments.length}
+            avgPrice={avgPrice}
+            opportunityScore={opportunityScore}
+            recentRecords={recentRecords}
+          />
+        </Reveal>
+      </Section>
+
+      {/* ── 7c. Buyer–supplier network ────────────────────────────────────── */}
+      <Section className="py-16 sm:py-20">
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_1fr]">
           <Reveal>
-            <Eyebrow>A look inside</Eyebrow>
+            <Eyebrow>How it connects</Eyebrow>
             <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-              From Search to Actionable Insight in Seconds
+              One search, the whole trade picture
             </h2>
             <p className="mt-3 text-muted">
-              Vaskodigama doesn&apos;t hand you raw shipment rows — it returns
-              structured, decision-ready intelligence: buyers, suppliers,
-              markets, pricing and an Opportunity Score in one view.
+              Every product search links back to the real participants and
+              records behind it — importers, exporters, suppliers, origin and
+              destination markets, shipment records and price benchmarks, all
+              connected to a single search term.
             </p>
           </Reveal>
-          <Reveal delay={100}>
-            <SearchPreviewDashboard
-              productName="Metformin (API)"
-              summary={summary}
-              buyerCount={buyers.length}
-              supplierCount={suppliers.length}
-              shipmentCount={shipments.length}
-              avgPrice={avgPrice}
-              opportunityScore={opportunityScore}
-              recentRecords={recentRecords}
-            />
-          </Reveal>
+          <BuyerSupplierNetwork />
         </div>
       </Section>
 

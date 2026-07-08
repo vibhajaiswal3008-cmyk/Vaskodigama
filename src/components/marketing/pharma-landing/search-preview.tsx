@@ -4,12 +4,18 @@ import { Badge } from "@/components/ui/badge";
 import { ButtonLink } from "@/components/ui/button";
 import { ScoreDial } from "@/components/opportunity/opportunity-score";
 import { Flag } from "@/components/shared/flag";
+import { IllustrativeBadge } from "@/components/shared/illustrative";
 import { formatCompact, formatCurrency } from "@/lib/utils";
 
 interface RecentRecord {
   id: string;
+  product: string;
+  buyer: string;
+  supplier: string;
   originCode: string;
   destinationCode: string;
+  quantity: number;
+  unit: string;
   value: number;
   date: string;
 }
@@ -99,19 +105,43 @@ export function SearchPreviewDashboard({
 
         {/* Recent records + opportunity score */}
         <div className="grid gap-4 lg:grid-cols-[1.3fr_0.7fr]">
-          <div className="rounded-lg border border-border p-4">
+          <div className="overflow-x-auto rounded-lg border border-border p-4">
             <p className="text-sm font-semibold text-navy">Recent shipment records</p>
-            <ul className="mt-2 divide-y divide-border">
-              {recentRecords.map((r) => (
-                <li key={r.id} className="flex items-center justify-between gap-2 py-1.5 text-sm">
-                  <span className="flex items-center gap-1.5 text-navy">
-                    <Ship className="size-3.5 text-muted" aria-hidden />
-                    {r.originCode} <ArrowUpRight className="size-3 text-muted" aria-hidden /> {r.destinationCode}
-                  </span>
-                  <span className="text-xs text-muted">{formatCurrency(r.value)}</span>
-                </li>
-              ))}
-            </ul>
+            <table className="mt-2 w-full min-w-[420px] border-collapse text-sm">
+              <thead>
+                <tr className="text-left text-xs text-muted">
+                  <th className="pb-1.5 pr-3 font-medium">Buyer → Supplier</th>
+                  <th className="pb-1.5 pr-3 font-medium">Route</th>
+                  <th className="pb-1.5 pr-3 font-medium">Qty</th>
+                  <th className="pb-1.5 text-right font-medium">Value</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {recentRecords.map((r) => (
+                  <tr key={r.id} className="text-navy">
+                    <td className="py-1.5 pr-3">
+                      <span className="block truncate text-xs font-medium">{r.buyer}</span>
+                      <span className="block truncate text-[11px] text-muted">← {r.supplier}</span>
+                    </td>
+                    <td className="py-1.5 pr-3">
+                      <span className="flex items-center gap-1 whitespace-nowrap text-xs">
+                        <Ship className="size-3 text-muted" aria-hidden />
+                        {r.originCode} <ArrowUpRight className="size-2.5 text-muted" aria-hidden /> {r.destinationCode}
+                      </span>
+                    </td>
+                    <td className="py-1.5 pr-3 text-xs text-muted whitespace-nowrap">
+                      {formatCompact(r.quantity)} {r.unit}
+                    </td>
+                    <td className="py-1.5 text-right text-xs font-semibold whitespace-nowrap">
+                      {formatCurrency(r.value)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted">
+              Illustrative demo data <IllustrativeBadge />
+            </p>
           </div>
           <div className="flex flex-col items-center justify-center rounded-lg border border-border p-4 text-center">
             <p className="text-sm font-semibold text-navy">Opportunity Score</p>
