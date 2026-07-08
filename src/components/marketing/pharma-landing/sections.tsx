@@ -24,6 +24,10 @@ import {
   Award,
   Target,
   DollarSign,
+  Database,
+  Cpu,
+  Gauge,
+  ChevronDown,
 } from "lucide-react";
 import { Eyebrow } from "@/components/ui/misc";
 import { Card, CardContent } from "@/components/ui/card";
@@ -58,11 +62,143 @@ const PROBLEM_CARDS: { icon: LucideIcon; title: string; body: string }[] = [
   },
 ];
 
-const DATA_FLOW_STEPS = [
-  { label: "Raw shipment data", tint: "text-muted-strong" },
-  { label: "Structured intelligence", tint: "text-primary" },
-  { label: "Business decision", tint: "text-success" },
-] as const;
+/* Raw shipment record — one illustrative example, consistent with the
+   Metformin API sample used throughout the rest of this page. */
+const RAW_RECORD_FIELDS = [
+  { label: "Product", value: "Metformin HCl" },
+  { label: "HS code", value: "2929.90" },
+  { label: "Buyer", value: "Arclight Medical Supplies" },
+  { label: "Supplier", value: "Northstar Industrial Components" },
+  { label: "Quantity", value: "6.4K kg" },
+  { label: "Value", value: "$19,815" },
+  { label: "Origin → destination", value: "IN → GB" },
+];
+
+const INTELLIGENCE_CHIPS: { icon: LucideIcon; label: string }[] = [
+  { icon: Users, label: "Buyer Mapping" },
+  { icon: ShieldCheck, label: "Supplier Validation" },
+  { icon: LineChart, label: "Price Benchmarking" },
+  { icon: Ship, label: "Shipment Analysis" },
+  { icon: Globe2, label: "Market Ranking" },
+  { icon: Radar, label: "Competitor Tracking" },
+];
+
+const DECISION_OUTPUTS: { icon: LucideIcon; label: string; value: string }[] = [
+  { icon: Users, label: "Active buyers", value: "5" },
+  { icon: Factory, label: "Reliable suppliers", value: "4" },
+  { icon: DollarSign, label: "Average price", value: "$3/kg" },
+  { icon: MapIcon, label: "Top markets", value: "40" },
+  { icon: Gauge, label: "Opportunity score", value: "72/100" },
+];
+
+/** Connector between the three artifact stages — horizontal on desktop, vertical on mobile. */
+function StageConnector() {
+  return (
+    <div className="flex shrink-0 items-center justify-center py-2 lg:py-0">
+      <ArrowRight className="hidden size-6 shrink-0 text-[var(--chart-2)] lg:block" aria-hidden />
+      <ChevronDown className="size-6 shrink-0 text-[var(--chart-2)] lg:hidden" aria-hidden />
+    </div>
+  );
+}
+
+/**
+ * The section's main visual: raw shipment record → Vaskodigama's
+ * intelligence layer → structured decision output. Built from cards, chips
+ * and connectors only (no charting library) — the point is legibility, not
+ * decoration.
+ */
+function DataTransformArtifact() {
+  return (
+    <div className="rounded-[28px] border border-border bg-surface p-5 sm:p-8">
+      <div className="flex flex-col items-stretch lg:flex-row lg:items-center">
+        {/* Stage 1 — raw shipment data */}
+        <div className="flex-1 rounded-2xl border border-border bg-background p-5 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-surface-2 text-muted-strong">
+              <Database className="size-4" aria-hidden />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-navy">Raw shipment data</p>
+              <p className="text-[11px] text-muted">Unstructured trade record</p>
+            </div>
+          </div>
+          <dl className="mt-4 space-y-2 border-t border-dashed border-border pt-3">
+            {RAW_RECORD_FIELDS.map((f) => (
+              <div key={f.label} className="flex items-baseline justify-between gap-3 text-xs">
+                <dt className="shrink-0 text-muted">{f.label}</dt>
+                <dd className="truncate text-right font-medium text-muted-strong">{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+
+        <StageConnector />
+
+        {/* Stage 2 — Vaskodigama intelligence layer */}
+        <div className="relative flex-1 overflow-hidden rounded-2xl bg-navy p-5 shadow-md lg:flex-[1.15]">
+          <div className="bg-route-grid absolute inset-0 opacity-40" aria-hidden />
+          <div className="relative">
+            <div className="flex items-center gap-2">
+              <span className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-[var(--chart-2)]">
+                <Cpu className="size-4" aria-hidden />
+              </span>
+              <p className="text-sm font-semibold text-white">Vaskodigama Intelligence Layer</p>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {INTELLIGENCE_CHIPS.map((c) => {
+                const Icon = c.icon;
+                return (
+                  <span
+                    key={c.label}
+                    className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-2 text-[11px] font-medium text-white/90"
+                  >
+                    <Icon className="size-3.5 shrink-0 text-[var(--chart-2)]" aria-hidden />
+                    {c.label}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        <StageConnector />
+
+        {/* Stage 3 — structured decision output */}
+        <div className="flex-1 rounded-2xl border border-primary/15 bg-primary-soft p-5 shadow-xs">
+          <div className="flex items-center gap-2">
+            <span className="flex size-8 items-center justify-center rounded-lg bg-background text-primary">
+              <Target className="size-4" aria-hidden />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-navy">Business decision output</p>
+              <p className="text-[11px] text-muted">Structured, decision-ready</p>
+            </div>
+          </div>
+          <ul className="mt-4 space-y-2">
+            {DECISION_OUTPUTS.map((o) => {
+              const Icon = o.icon;
+              return (
+                <li
+                  key={o.label}
+                  className="flex items-center justify-between gap-2 rounded-lg bg-background px-3 py-2 text-xs"
+                >
+                  <span className="flex items-center gap-1.5 text-muted-strong">
+                    <Icon className="size-3.5 shrink-0 text-primary" aria-hidden />
+                    {o.label}
+                  </span>
+                  <span className="font-semibold tabular-nums text-navy">{o.value}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+      <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted">
+        Illustrative example, one Metformin API record <IllustrativeBadge />
+      </p>
+    </div>
+  );
+}
 
 export function ProblemSolution() {
   return (
@@ -80,18 +216,8 @@ export function ProblemSolution() {
         </p>
       </Reveal>
 
-      {/* Raw data → structured intelligence → decision flow */}
-      <Reveal className="mx-auto mt-8 flex max-w-2xl flex-wrap items-center justify-center gap-2 text-sm font-semibold sm:flex-nowrap">
-        {DATA_FLOW_STEPS.map((s, i) => (
-          <div key={s.label} className="flex items-center gap-2">
-            <span className={cn("whitespace-nowrap rounded-full border border-border bg-background px-3.5 py-1.5", s.tint)}>
-              {s.label}
-            </span>
-            {i < DATA_FLOW_STEPS.length - 1 ? (
-              <ArrowRight className="size-4 shrink-0 text-muted" aria-hidden />
-            ) : null}
-          </div>
-        ))}
+      <Reveal delay={80} className="mt-10">
+        <DataTransformArtifact />
       </Reveal>
 
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
