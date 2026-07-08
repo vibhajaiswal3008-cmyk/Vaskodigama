@@ -2,15 +2,12 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 /**
- * Vaskodigama logo.
- *
- * ⚠️ TEMPORARY WORDMARK — no official logo asset was supplied. This is a clean
- * placeholder (a compass mark, nodding to the explorer name, deliberately
- * avoiding cargo-ship clichés). To use the real logo:
- *   1. Drop the SVG into /public/brand/logo.svg
- *   2. Replace the inline <svg> mark below with <Image src="/brand/logo.svg" .../>
- *      OR paste the official SVG path data in place of the mark.
- *   3. Do NOT redraw, stretch, recolour, or add decoration to the approved logo.
+ * Vaskodigama wordmark. Text-based approximation of the live brand mark
+ * (VΛSKØDIGAMA, styled with Λ/Ø letterforms) — no official SVG asset has
+ * been supplied. If one becomes available, replace the <span> below with
+ * <Image src="/brand/logo.svg" .../> rather than redrawing or recolouring.
+ * LogoMark (the compass glyph) is kept for icon-only contexts (e.g. a
+ * collapsed sidebar) where the full wordmark doesn't fit.
  */
 
 export function LogoMark({ className }: { className?: string }) {
@@ -48,13 +45,12 @@ export function Logo({
     <Link
       href={href}
       className={cn(
-        "inline-flex items-center gap-2 font-heading text-lg font-bold tracking-tight text-navy",
+        "inline-flex items-center font-heading text-xl font-extrabold tracking-tight text-navy",
         className,
       )}
       aria-label="Vaskodigama home"
     >
-      <LogoMark className="size-8 text-primary" />
-      {showText ? <span>Vaskodigama</span> : null}
+      {showText ? <span>VΛSKØDIGAMA</span> : <LogoMark className="size-8 text-primary" />}
     </Link>
   );
 }

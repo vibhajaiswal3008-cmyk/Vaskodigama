@@ -23,6 +23,8 @@ export function SearchExperience({
   const params = useSearchParams();
   const hasQuery =
     params.has("term") ||
+    params.has("query") ||
+    params.has("product") ||
     params.has("origin") ||
     params.has("dest") ||
     params.has("hs");

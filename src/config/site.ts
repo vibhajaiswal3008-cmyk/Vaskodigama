@@ -35,8 +35,13 @@ export const mainNav: NavItem[] = [
   {
     label: "Solutions",
     href: "/solutions",
-    description: "Tailored workflows by role.",
+    description: "Tailored workflows by role and industry.",
     children: [
+      {
+        label: "Pharmaceuticals",
+        href: "/solutions/pharmaceuticals",
+        description: "APIs, formulations, buyers, suppliers and markets.",
+      },
       {
         label: "For exporters",
         href: "/solutions/exporters",

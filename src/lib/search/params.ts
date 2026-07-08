@@ -39,7 +39,9 @@ export function paramsToQuery(
 
   return {
     type,
-    term: get("term") ?? "",
+    // "term" is this project's convention; "query"/"product" are accepted as
+    // aliases so a hand-built URL (e.g. ?query=paracetamol) still works.
+    term: get("term") ?? get("query") ?? get("product") ?? "",
     hsCode: get("hs"),
     direction,
     originCountry: get("origin"),

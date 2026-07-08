@@ -128,29 +128,29 @@ export function ValueProps() {
 
 export function BoldFinalCta() {
   return (
-    <div className="surface-aurora relative overflow-hidden rounded-[28px] px-6 py-14 text-center sm:px-12">
-      <div className="bg-route-grid absolute inset-0 opacity-60" aria-hidden />
+    <div className="relative overflow-hidden rounded-[28px] border border-border bg-surface px-6 py-14 text-center sm:px-12">
+      <div className="bg-route-grid-light absolute inset-0 opacity-50" aria-hidden />
       <div className="relative mx-auto max-w-2xl">
-        <h2 className="text-3xl font-bold text-white sm:text-4xl">
+        <h2 className="text-3xl font-bold text-navy sm:text-4xl">
           Your next market decision can start with a{" "}
-          <span className="text-gradient-light">better search</span>
+          <span className="text-gradient">better search</span>
         </h2>
-        <p className="mx-auto mt-4 max-w-xl text-white/75">
+        <p className="mx-auto mt-4 max-w-xl text-muted">
           Explore the Vaskodigama demonstration, review the dashboard, or speak
           with the team about your trade-data requirements.
         </p>
         <div className="mt-7 flex flex-wrap justify-center gap-3">
-          <ButtonLink href="/explore" className="btn-gradient h-12 rounded-full px-7 text-base">
+          <ButtonLink href="/explore" className="h-12 rounded-full px-7 text-base">
             Explore Trade Data <ArrowRight className="size-4" aria-hidden />
           </ButtonLink>
           <Link
             href="/contact"
-            className="inline-flex h-12 items-center rounded-full border border-white/30 px-7 text-base font-semibold text-white hover:bg-white/10"
+            className="inline-flex h-12 items-center rounded-full border border-border-strong px-7 text-base font-semibold text-navy hover:bg-background"
           >
             Request a Demo
           </Link>
         </div>
-        <Link href="/pricing" className="mt-5 inline-block text-sm font-medium text-white/70 underline-offset-4 hover:text-white hover:underline">
+        <Link href="/pricing" className="mt-5 inline-block text-sm font-medium text-muted underline-offset-4 hover:text-navy hover:underline">
           Or request a custom plan →
         </Link>
       </div>

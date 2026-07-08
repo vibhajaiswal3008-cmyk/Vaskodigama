@@ -13,6 +13,7 @@ const routes = [
   "/industries",
   "/data",
   "/demo",
+  "/search-results",
   "/resources",
   "/about",
   "/contact",

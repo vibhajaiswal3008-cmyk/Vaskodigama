@@ -52,7 +52,7 @@ export default function PlatformPage() {
           read a plain-English summary before you search.
         </p>
         <div className="mt-6">
-          <TradeSearch variant="full" resultPath="/demo" />
+          <TradeSearch variant="full" resultPath="/search-results" />
         </div>
       </Section>
 

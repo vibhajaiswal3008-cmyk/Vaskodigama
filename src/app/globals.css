@@ -136,10 +136,18 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-h1, h2, h3, h4, h5 {
-  font-family: var(--font-heading);
-  color: var(--navy);
-  letter-spacing: -0.02em;
+/*
+  Layered so Tailwind utility classes (e.g. text-white on a dark hero heading)
+  can override this default — unlayered CSS always beats Tailwind's own
+  @layer utilities in the cascade, regardless of selector specificity, which
+  previously made `text-white` on any h1–h5 silently render navy-on-navy.
+*/
+@layer base {
+  h1, h2, h3, h4, h5 {
+    font-family: var(--font-heading);
+    color: var(--navy);
+    letter-spacing: -0.02em;
+  }
 }
 
 /* Visible, consistent focus ring for keyboard users */

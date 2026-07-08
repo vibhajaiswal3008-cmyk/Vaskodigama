@@ -134,13 +134,9 @@ export default async function HomePage() {
       {/* ── Role pathways ──────────────────────────────────────────────── */}
       <Section muted>
         <div className="mb-8 max-w-2xl">
-          <Eyebrow>For your role</Eyebrow>
-          <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+          <h2 className="text-3xl font-bold text-navy sm:text-4xl">
             One platform, different trade questions
           </h2>
-          <p className="mt-3 text-muted">
-            Each path preconfigures the search and dashboard for how your team works.
-          </p>
         </div>
         <RolePathways />
       </Section>
@@ -179,11 +175,6 @@ export default async function HomePage() {
           </div>
           <DashboardPreview summary={summary} />
         </div>
-      </Section>
-
-      {/* ── Industries ─────────────────────────────────────────────────── */}
-      <Section muted>
-        <IndustriesGrid />
       </Section>
 
       {/* ── Final CTA ──────────────────────────────────────────────────── */}

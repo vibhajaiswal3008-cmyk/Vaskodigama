@@ -31,6 +31,15 @@ test.describe("Vaskodigama smoke flows", () => {
     await expect(page.getByRole("heading", { name: /coffee/i }).first()).toBeVisible();
   });
 
+  test("platform page search routes to /search-results with the query", async ({ page }) => {
+    await page.goto("/platform");
+    const input = page.getByLabel("Product name");
+    await input.fill("Paracetamol");
+    await page.locator('form[aria-label="Global Trade Search"] button[type="submit"]').click();
+    await expect(page).toHaveURL(/\/search-results\?.*term=Paracetamol/i);
+    await expect(page.getByRole("heading", { name: /Paracetamol/i }).first()).toBeVisible();
+  });
+
   test("results tabs include buyers and suppliers", async ({ page }) => {
     await page.goto("/demo");
     await expect(page.getByRole("tab", { name: "Buyer Intelligence" })).toBeVisible();

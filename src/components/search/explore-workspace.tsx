@@ -2,14 +2,23 @@
 
 import * as React from "react";
 import {
-  Columns3,
-  Download,
-  LayoutGrid,
-  RotateCcw,
   Search,
   SlidersHorizontal,
-  Table as TableIcon,
+  Download,
   X,
+  RotateCcw,
+  LayoutGrid,
+  Table as TableIcon,
+  ChevronDown,
+  ChevronRight,
+  Ship,
+  Building2,
+  Factory,
+  Globe2,
+  Hash,
+  MapPin,
+  BarChart3,
+  Info,
 } from "lucide-react";
 import type {
   ExploreMode,
@@ -34,43 +43,22 @@ import { Modal } from "@/components/ui/modal";
 import { EmptyState } from "@/components/ui/misc";
 import { IllustrativeBadge } from "@/components/shared/illustrative";
 import { Flag } from "@/components/shared/flag";
-import { cn, formatCurrency, formatDate, formatNumber } from "@/lib/utils";
-
-/** Small section heading inside the filter panel. */
-function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-3 border-t border-border pt-4 first:border-0 first:pt-0">
-      <p className="text-xs font-semibold uppercase tracking-wide text-muted">{title}</p>
-      {children}
-    </div>
-  );
-}
-
-/** Origin/destination flag + name route, used in table cells and cards. */
-function ShipmentRoute({ origin, destination, compact }: { origin: string; destination: string; compact?: boolean }) {
-  return (
-    <span className="inline-flex items-center gap-1.5 whitespace-nowrap">
-      <Flag code={origin} className="h-3 w-4 shrink-0" />
-      <span>{compact ? origin : countryName(origin)}</span>
-      <span className="text-muted/60" aria-hidden>→</span>
-      <Flag code={destination} className="h-3 w-4 shrink-0" />
-      <span>{compact ? destination : countryName(destination)}</span>
-    </span>
-  );
-}
+import { cn, formatCompact, formatCurrency, formatDate, formatNumber } from "@/lib/utils";
 import { toCsv, downloadCsv } from "@/lib/csv";
+import { ExploreOverview } from "./explore-overview";
+import { BuyersPanel, SuppliersPanel } from "./explore-companies";
+import { CountriesPanel, HSCodesPanel, RoutesPanel } from "./explore-panels";
 
-const countryName = (code: string) =>
+/* ── Country name lookup ─────────────────────────────────────────────────── */
+
+const getCountryName = (code: string) =>
   coverageCountries.find((c) => c.code === code)?.name ?? code;
+
+/* ── URL state ───────────────────────────────────────────────────────────── */
 
 const EXPLORE_URL_EVENT = "vdg:explore-url";
 
-/**
- * The URL is the single source of truth for the search (shareable links). We
- * read it with useSyncExternalStore — SSR-safe and lint-clean (no setState in
- * an effect) — and write to it with replaceState + a custom event.
- */
-function useExploreUrlParams(): ExploreParams {
+function useExploreUrlParams(): ExploreParams & { tab: ExploreTab } {
   const search = React.useSyncExternalStore(
     (cb) => {
       window.addEventListener(EXPLORE_URL_EVENT, cb);
@@ -83,28 +71,65 @@ function useExploreUrlParams(): ExploreParams {
     () => window.location.search,
     () => "",
   );
-  return React.useMemo(
-    () => parseExploreParams(Object.fromEntries(new URLSearchParams(search))),
-    [search],
-  );
+  return React.useMemo(() => {
+    const raw = Object.fromEntries(new URLSearchParams(search));
+    const base = parseExploreParams(raw);
+    const tab = EXPLORE_TABS.some((t) => t.id === raw.tab)
+      ? (raw.tab as ExploreTab)
+      : "overview";
+    return { ...base, tab };
+  }, [search]);
 }
 
-function writeExploreUrlParams(p: ExploreParams) {
+function writeExploreUrlParams(p: ExploreParams & { tab?: ExploreTab }) {
   const qs = serializeExploreParams(p);
-  window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+  const tabPart = p.tab && p.tab !== "overview" ? `tab=${p.tab}` : "";
+  const full = [qs, tabPart].filter(Boolean).join("&");
+  window.history.replaceState(null, "", full ? `?${full}` : window.location.pathname);
   window.dispatchEvent(new Event(EXPLORE_URL_EVENT));
 }
 
-const OPTIONAL_COLUMNS = [
-  { id: "originPort", label: "Origin port" },
-  { id: "destinationPort", label: "Destination port" },
-  { id: "transportMode", label: "Transport mode" },
-  { id: "reference", label: "Reference" },
-] as const;
+/* ── Tab definitions ─────────────────────────────────────────────────────── */
 
-type OptionalCol = (typeof OPTIONAL_COLUMNS)[number]["id"];
+type ExploreTab = "overview" | "shipments" | "buyers" | "suppliers" | "countries" | "hs-codes" | "routes";
 
-/** Reusable filter form — rendered in the desktop sidebar and the mobile drawer. */
+const EXPLORE_TABS: {
+  id: ExploreTab;
+  label: string;
+  icon: React.ElementType;
+  countFn?: (records: ExploreRecord[]) => number;
+}[] = [
+  { id: "overview", label: "Overview", icon: BarChart3 },
+  { id: "shipments", label: "Shipments", icon: Ship, countFn: (r) => r.length },
+  { id: "buyers", label: "Buyers", icon: Building2, countFn: (r) => new Set(r.map((x) => x.importer || x.buyer).filter(Boolean)).size },
+  { id: "suppliers", label: "Suppliers", icon: Factory, countFn: (r) => new Set(r.map((x) => x.exporter || x.supplier).filter(Boolean)).size },
+  { id: "countries", label: "Countries", icon: Globe2, countFn: (r) => new Set(r.map((x) => x.destinationCountry).filter(Boolean)).size },
+  { id: "hs-codes", label: "HS Codes", icon: Hash, countFn: (r) => new Set(r.map((x) => x.hsCode).filter(Boolean)).size },
+  { id: "routes", label: "Routes", icon: MapPin, countFn: (r) => new Set(r.map((x) => `${x.originCountry}→${x.destinationCountry}`)).size },
+];
+
+/* ── Filter sidebar ──────────────────────────────────────────────────────── */
+
+function FilterGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  const [open, setOpen] = React.useState(true);
+  return (
+    <div className="border-t border-border pt-4 first:border-0 first:pt-0">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-full items-center justify-between text-left"
+      >
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted">{title}</p>
+        <ChevronDown
+          className={cn("size-3.5 text-muted transition-transform", !open && "-rotate-90")}
+          aria-hidden
+        />
+      </button>
+      {open && <div className="mt-3 space-y-3">{children}</div>}
+    </div>
+  );
+}
+
 function FiltersForm({
   params,
   update,
@@ -119,7 +144,7 @@ function FiltersForm({
 
   return (
     <div className="space-y-4">
-      <FilterGroup title="Product classification">
+      <FilterGroup title="Classification">
         <div>
           <Label htmlFor="f-hs">HS Code</Label>
           <Input
@@ -134,74 +159,63 @@ function FiltersForm({
       </FilterGroup>
 
       <FilterGroup title="Geography">
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <Label htmlFor="f-origin">Origin country</Label>
-            <select
-              id="f-origin"
-              className={cn(field, "mt-1")}
-              value={params.origin}
-              onChange={(e) => update({ origin: e.target.value })}
-            >
-              <option value="">Any</option>
-              {coverageCountries.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <Label htmlFor="f-dest">Destination country</Label>
-            <select
-              id="f-dest"
-              className={cn(field, "mt-1")}
-              value={params.destination}
-              onChange={(e) => update({ destination: e.target.value })}
-            >
-              <option value="">Any</option>
-              {coverageCountries.map((c) => (
-                <option key={c.code} value={c.code}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div>
+          <Label htmlFor="f-origin">Origin country</Label>
+          <select
+            id="f-origin"
+            className={cn(field, "mt-1")}
+            value={params.origin}
+            onChange={(e) => update({ origin: e.target.value })}
+          >
+            <option value="">Any origin</option>
+            {coverageCountries.map((c) => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="f-dest">Destination country</Label>
+          <select
+            id="f-dest"
+            className={cn(field, "mt-1")}
+            value={params.destination}
+            onChange={(e) => update({ destination: e.target.value })}
+          >
+            <option value="">Any destination</option>
+            {coverageCountries.map((c) => (
+              <option key={c.code} value={c.code}>{c.name}</option>
+            ))}
+          </select>
         </div>
       </FilterGroup>
 
-      <FilterGroup title="Trade details">
-        <div>
-          <span className="text-sm font-medium text-muted-strong">Trade direction</span>
-          <div role="group" aria-label="Trade direction" className="mt-1 inline-flex w-full rounded-md border border-border bg-surface p-0.5">
-            {([
-              ["all", "All"],
-              ["Import", "Imports"],
-              ["Export", "Exports"],
-            ] as const).map(([value, label]) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={params.flow === value}
-                onClick={() => update({ flow: value })}
-                className={cn(
-                  "flex-1 rounded px-2 py-1.5 text-sm font-medium transition-colors",
-                  params.flow === value ? "bg-background text-navy shadow-xs" : "text-muted hover:text-navy",
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
+      <FilterGroup title="Trade direction">
+        <div role="group" aria-label="Trade direction" className="inline-flex w-full rounded-md border border-border bg-surface p-0.5">
+          {(["all", "Import", "Export"] as const).map((value) => (
+            <button
+              key={value}
+              type="button"
+              aria-pressed={params.flow === value}
+              onClick={() => update({ flow: value })}
+              className={cn(
+                "flex-1 rounded px-2 py-1.5 text-sm font-medium transition-colors",
+                params.flow === value ? "bg-background text-navy shadow-xs" : "text-muted hover:text-navy",
+              )}
+            >
+              {value === "all" ? "All" : value + "s"}
+            </button>
+          ))}
         </div>
+      </FilterGroup>
 
+      <FilterGroup title="Date range">
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <Label htmlFor="f-from">Start date</Label>
+            <Label htmlFor="f-from">From</Label>
             <input id="f-from" type="date" className={cn(field, "mt-1")} value={params.dateFrom} max={params.dateTo || undefined} onChange={(e) => update({ dateFrom: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="f-to">End date</Label>
+            <Label htmlFor="f-to">To</Label>
             <input id="f-to" type="date" className={cn(field, "mt-1")} value={params.dateTo} min={params.dateFrom || undefined} onChange={(e) => update({ dateTo: e.target.value })} />
           </div>
         </div>
@@ -210,21 +224,21 @@ function FiltersForm({
       <FilterGroup title="Quantity & value">
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <Label htmlFor="f-minq">Min quantity</Label>
+            <Label htmlFor="f-minq">Min qty</Label>
             <Input id="f-minq" className="mt-1 h-10" inputMode="numeric" value={params.minQty} onChange={(e) => update({ minQty: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="f-maxq">Max quantity</Label>
+            <Label htmlFor="f-maxq">Max qty</Label>
             <Input id="f-maxq" className="mt-1 h-10" inputMode="numeric" value={params.maxQty} onChange={(e) => update({ maxQty: e.target.value })} />
           </div>
         </div>
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <Label htmlFor="f-minv">Min value (USD)</Label>
+            <Label htmlFor="f-minv">Min value $</Label>
             <Input id="f-minv" className="mt-1 h-10" inputMode="numeric" value={params.minValue} onChange={(e) => update({ minValue: e.target.value })} />
           </div>
           <div>
-            <Label htmlFor="f-maxv">Max value (USD)</Label>
+            <Label htmlFor="f-maxv">Max value $</Label>
             <Input id="f-maxv" className="mt-1 h-10" inputMode="numeric" value={params.maxValue} onChange={(e) => update({ maxValue: e.target.value })} />
           </div>
         </div>
@@ -238,94 +252,174 @@ function FiltersForm({
   );
 }
 
-function RecordCard({
-  rec,
-  onOpen,
-}: {
-  rec: ExploreRecord;
-  onOpen: () => void;
-}) {
+/* ── Shipment row (expandable) ──────────────────────────────────────────── */
+
+function ShipmentRow({ rec }: { rec: ExploreRecord }) {
+  const [expanded, setExpanded] = React.useState(false);
+
   return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="flex flex-col rounded-[14px] border border-border bg-background p-4 text-left shadow-xs transition-colors hover:border-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-    >
-      <div className="flex items-center justify-between gap-2">
-        <Badge tone={rec.tradeFlow === "Import" ? "primary" : "neutral"}>{rec.tradeFlow}</Badge>
-        <span className="text-xs text-muted">{formatDate(rec.date)}</span>
-      </div>
-      <p className="mt-2 font-medium text-navy">{rec.productDescription}</p>
-      <p className="text-xs text-muted">HS {rec.hsCode}</p>
-      <p className="mt-2 text-sm text-muted">
-        <ShipmentRoute origin={rec.originCountry} destination={rec.destinationCountry} />
-      </p>
-      <div className="mt-2 flex items-center justify-between text-sm">
-        <span className="tabular-nums text-muted">{formatNumber(rec.quantity)} {rec.unit}</span>
-        <span className="font-semibold tabular-nums text-navy">{formatCurrency(rec.tradeValue)}</span>
-      </div>
-    </button>
+    <>
+      <tr
+        className={cn(
+          "border-b border-border/60 last:border-0 transition-colors",
+          expanded ? "bg-surface/40" : "hover:bg-surface/30",
+        )}
+      >
+        <td className="px-3 py-3">
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            aria-label={expanded ? "Collapse details" : "Expand details"}
+            className="flex size-6 items-center justify-center rounded text-muted hover:bg-surface hover:text-navy"
+          >
+            <ChevronRight
+              className={cn("size-4 transition-transform", expanded && "rotate-90")}
+              aria-hidden
+            />
+          </button>
+        </td>
+        <td className="whitespace-nowrap px-3 py-3 text-xs text-muted">
+          {formatDate(rec.date)}
+        </td>
+        <td className="px-3 py-3">
+          <p className="max-w-[200px] truncate font-medium text-navy text-sm" title={rec.productDescription}>
+            {rec.productDescription}
+          </p>
+          <p className="mt-0.5 font-mono text-[11px] text-muted">{rec.hsCode}</p>
+        </td>
+        <td className="px-3 py-3">
+          <p className="max-w-[140px] truncate text-sm text-muted-strong" title={rec.importer || rec.buyer}>
+            {rec.importer || rec.buyer || "—"}
+          </p>
+        </td>
+        <td className="px-3 py-3">
+          <p className="max-w-[140px] truncate text-sm text-muted-strong" title={rec.exporter || rec.supplier}>
+            {rec.exporter || rec.supplier || "—"}
+          </p>
+        </td>
+        <td className="whitespace-nowrap px-3 py-3">
+          <span className="inline-flex items-center gap-1 text-xs text-muted">
+            <Flag code={rec.originCountry} className="h-3 w-4 shrink-0" />
+            {rec.originCountry}
+            <span className="text-muted/50" aria-hidden>→</span>
+            <Flag code={rec.destinationCountry} className="h-3 w-4 shrink-0" />
+            {rec.destinationCountry}
+          </span>
+        </td>
+        <td className="px-3 py-3 text-right">
+          <p className="font-semibold tabular-nums text-navy text-sm">{formatCurrency(rec.tradeValue)}</p>
+          <p className="text-[11px] tabular-nums text-muted">{formatNumber(rec.quantity)} {rec.unit}</p>
+        </td>
+        <td className="px-3 py-3">
+          <Badge tone={rec.tradeFlow === "Import" ? "primary" : "neutral"} className="text-[11px]">
+            {rec.tradeFlow}
+          </Badge>
+        </td>
+      </tr>
+
+      {/* Expanded row */}
+      {expanded && (
+        <tr className="border-b border-border/60 bg-surface/20">
+          <td colSpan={8} className="px-4 py-4">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <dl className="space-y-2 text-sm">
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Reference</dt>
+                  <dd className="font-mono font-medium text-navy text-xs">{rec.reference}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">HS Code</dt>
+                  <dd className="font-mono text-navy">{rec.hsCode}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Quantity</dt>
+                  <dd className="font-medium text-navy">{formatNumber(rec.quantity)} {rec.unit}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Trade value</dt>
+                  <dd className="font-medium text-navy">{formatCurrency(rec.tradeValue)}</dd>
+                </div>
+              </dl>
+              <dl className="space-y-2 text-sm">
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Origin</dt>
+                  <dd className="font-medium text-navy">{getCountryName(rec.originCountry)}{rec.originState ? `, ${rec.originState}` : ""}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Origin port</dt>
+                  <dd className="font-medium text-navy">{rec.originPort || "—"}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Destination</dt>
+                  <dd className="font-medium text-navy">{getCountryName(rec.destinationCountry)}{rec.destinationState ? `, ${rec.destinationState}` : ""}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Dest. port</dt>
+                  <dd className="font-medium text-navy">{rec.destinationPort || "—"}</dd>
+                </div>
+              </dl>
+              <dl className="space-y-2 text-sm">
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Transport</dt>
+                  <dd className="font-medium text-navy">{rec.transportMode ?? "—"}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Buyer</dt>
+                  <dd className="font-medium text-navy">{rec.buyer || rec.importer || "—"}</dd>
+                </div>
+                <div className="flex justify-between gap-2">
+                  <dt className="text-muted">Supplier</dt>
+                  <dd className="font-medium text-navy">{rec.supplier || rec.exporter || "—"}</dd>
+                </div>
+                <div className="mt-2 flex items-center gap-2">
+                  <IllustrativeBadge />
+                  <span className="text-xs text-muted">Sample record</span>
+                </div>
+              </dl>
+            </div>
+          </td>
+        </tr>
+      )}
+    </>
   );
 }
 
-export function ExploreWorkspace({
+/* ── Shipments panel ─────────────────────────────────────────────────────── */
+
+function ShipmentsPanel({
   records,
+  params,
+  update,
+  onReset,
 }: {
   records: ExploreRecord[];
+  params: ExploreParams;
+  update: (p: Partial<ExploreParams>) => void;
+  onReset: () => void;
 }) {
-  const params = useExploreUrlParams();
   const [view, setView] = React.useState<"table" | "cards">("table");
-  const [drawerOpen, setDrawerOpen] = React.useState(false);
-  const [colsOpen, setColsOpen] = React.useState(false);
-  const [hidden, setHidden] = React.useState<Set<OptionalCol>>(new Set());
-  const [detail, setDetail] = React.useState<ExploreRecord | null>(null);
-
-  const update = (patch: Partial<ExploreParams>) =>
-    writeExploreUrlParams({
-      ...params,
-      ...patch,
-      // Any change other than an explicit page change resets to page 1.
-      page: "page" in patch ? (patch.page as number) : 1,
-    });
-
-  const reset = () => writeExploreUrlParams(EMPTY_PARAMS);
-
-  const filtered = React.useMemo(
-    () => filterExploreRecords(records, params),
-    [records, params],
-  );
-  const pageCount = Math.max(1, Math.ceil(filtered.length / EXPLORE_PAGE_SIZE));
+  const pageCount = Math.max(1, Math.ceil(records.length / EXPLORE_PAGE_SIZE));
   const safePage = Math.min(params.page, pageCount);
-  const pageRows = filtered.slice(
+  const pageRows = records.slice(
     (safePage - 1) * EXPLORE_PAGE_SIZE,
-    (safePage - 1) * EXPLORE_PAGE_SIZE + EXPLORE_PAGE_SIZE,
+    safePage * EXPLORE_PAGE_SIZE,
   );
-
-  const showCol = (id: OptionalCol) => !hidden.has(id);
-  function toggleCol(id: OptionalCol) {
-    setHidden((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }
 
   function exportCsv() {
-    const csv = toCsv(filtered, [
+    const csv = toCsv(records, [
       { header: "Date", get: (r) => r.date },
       { header: "Product", get: (r) => r.productDescription },
       { header: "HS Code", get: (r) => r.hsCode },
-      { header: "Importer / Buyer", get: (r) => r.importer },
-      { header: "Exporter / Supplier", get: (r) => r.exporter },
-      { header: "Origin", get: (r) => countryName(r.originCountry) },
-      { header: "Destination", get: (r) => countryName(r.destinationCountry) },
+      { header: "Importer / Buyer", get: (r) => r.importer || r.buyer },
+      { header: "Exporter / Supplier", get: (r) => r.exporter || r.supplier },
+      { header: "Origin", get: (r) => getCountryName(r.originCountry) },
+      { header: "Destination", get: (r) => getCountryName(r.destinationCountry) },
       { header: "Origin port", get: (r) => r.originPort },
       { header: "Destination port", get: (r) => r.destinationPort },
       { header: "Quantity", get: (r) => r.quantity },
       { header: "Unit", get: (r) => r.unit },
       { header: "Trade value", get: (r) => r.tradeValue },
-      { header: "Currency", get: (r) => r.currency },
       { header: "Trade flow", get: (r) => r.tradeFlow },
       { header: "Transport mode", get: (r) => r.transportMode ?? "" },
       { header: "Reference", get: (r) => r.reference },
@@ -333,351 +427,446 @@ export function ExploreWorkspace({
     downloadCsv(csv, "vaskodigama-explore-sample.csv");
   }
 
-  const activeFilterCount = [
-    params.hsCode, params.origin, params.destination,
-    params.dateFrom, params.dateTo, params.minQty, params.maxQty,
-    params.minValue, params.maxValue,
-  ].filter(Boolean).length + (params.flow !== "all" ? 1 : 0);
-
-  // Active-filter chips shown above the results (each removable).
-  const modeLabel =
-    EXPLORE_MODES.find((m) => m.id === params.mode)?.label ?? "Search";
-  const chips: { key: string; label: string; clear: () => void }[] = [];
-  if (params.q) chips.push({ key: "q", label: `${modeLabel}: ${params.q}`, clear: () => update({ q: "" }) });
-  if (params.hsCode) chips.push({ key: "hs", label: `HS Code: ${params.hsCode}`, clear: () => update({ hsCode: "" }) });
-  if (params.origin) chips.push({ key: "o", label: `Origin: ${countryName(params.origin)}`, clear: () => update({ origin: "" }) });
-  if (params.destination) chips.push({ key: "d", label: `Destination: ${countryName(params.destination)}`, clear: () => update({ destination: "" }) });
-  if (params.flow !== "all") chips.push({ key: "f", label: `Flow: ${params.flow}`, clear: () => update({ flow: "all" }) });
-  if (params.dateFrom) chips.push({ key: "df", label: `From ${params.dateFrom}`, clear: () => update({ dateFrom: "" }) });
-  if (params.dateTo) chips.push({ key: "dt", label: `To ${params.dateTo}`, clear: () => update({ dateTo: "" }) });
-  if (params.minQty) chips.push({ key: "mq", label: `Min qty ${params.minQty}`, clear: () => update({ minQty: "" }) });
-  if (params.maxQty) chips.push({ key: "xq", label: `Max qty ${params.maxQty}`, clear: () => update({ maxQty: "" }) });
-  if (params.minValue) chips.push({ key: "mv", label: `Min value ${params.minValue}`, clear: () => update({ minValue: "" }) });
-  if (params.maxValue) chips.push({ key: "xv", label: `Max value ${params.maxValue}`, clear: () => update({ maxValue: "" }) });
+  if (records.length === 0) {
+    return (
+      <EmptyState
+        icon={<Ship className="size-8" />}
+        title="No shipment records match the current filters"
+        description="Try expanding the date range, removing a country filter, or searching with a broader product term."
+        action={
+          <Button variant="outline" size="sm" onClick={onReset}>
+            <RotateCcw className="size-4" aria-hidden />
+            Clear all filters
+          </Button>
+        }
+      />
+    );
+  }
 
   return (
-    <div className="lg:grid lg:grid-cols-[280px_1fr] lg:gap-6">
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:block">
-        <div className="sticky top-24 rounded-[14px] border border-border bg-background p-4 shadow-xs">
-          <div className="mb-3 flex items-center gap-2">
-            <SlidersHorizontal className="size-4 text-primary" aria-hidden />
-            <h2 className="text-sm font-semibold text-navy">Filters</h2>
-          </div>
-          <FiltersForm params={params} update={update} onReset={reset} />
-        </div>
-      </aside>
-
-      <div className="min-w-0">
-        {/* Search bar */}
-        <form
-          role="search"
-          onSubmit={(e) => e.preventDefault()}
-          className="rounded-[14px] border border-border bg-background p-3 shadow-xs"
-        >
-          <div className="flex flex-col gap-2 sm:flex-row">
-            <label htmlFor="ex-mode" className="sr-only">Search mode</label>
+    <div className="space-y-3">
+      {/* Toolbar */}
+      <div className="flex flex-wrap items-center gap-2">
+        <p className="text-sm text-muted" aria-live="polite">
+          <span className="font-semibold tabular-nums text-navy">{formatNumber(records.length)}</span> shipment records
+        </p>
+        <div className="ml-auto flex items-center gap-2">
+          <label className="flex items-center gap-1.5 text-sm text-muted">
+            <span className="sr-only sm:not-sr-only">Sort</span>
             <select
-              id="ex-mode"
-              value={params.mode}
-              onChange={(e) => update({ mode: e.target.value as ExploreMode })}
-              className="h-11 rounded-md border border-border-strong bg-background px-2.5 text-sm font-medium text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:w-40"
+              aria-label="Sort records"
+              value={params.sort}
+              onChange={(e) => update({ sort: e.target.value as ExploreSort })}
+              className="h-9 rounded-md border border-border bg-background px-2 text-sm text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              {EXPLORE_MODES.map((m) => (
-                <option key={m.id} value={m.id}>{m.label}</option>
+              {EXPLORE_SORTS.map((s) => (
+                <option key={s.id} value={s.id}>{s.label}</option>
               ))}
             </select>
-            <div className="relative grow">
-              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
-              <Input
-                type="search"
-                aria-label={`Search by ${params.mode}`}
-                placeholder={
-                  params.mode === "hs-code"
-                    ? "HS Code or HSN Code, e.g. 300490"
-                    : `Search by ${params.mode}…`
-                }
-                value={params.q}
-                onChange={(e) => update({ q: e.target.value })}
-                className="pl-9"
-              />
-            </div>
-            <Button type="submit" className="shrink-0">Search Global Trade</Button>
+          </label>
+
+          <div role="group" aria-label="View" className="inline-flex rounded-md border border-border bg-surface p-0.5">
+            <button
+              type="button"
+              aria-pressed={view === "table"}
+              aria-label="Table view"
+              onClick={() => setView("table")}
+              className={cn("rounded px-2 py-1.5", view === "table" ? "bg-background text-navy shadow-xs" : "text-muted")}
+            >
+              <TableIcon className="size-4" aria-hidden />
+            </button>
+            <button
+              type="button"
+              aria-pressed={view === "cards"}
+              aria-label="Card view"
+              onClick={() => setView("cards")}
+              className={cn("rounded px-2 py-1.5", view === "cards" ? "bg-background text-navy shadow-xs" : "text-muted")}
+            >
+              <LayoutGrid className="size-4" aria-hidden />
+            </button>
           </div>
-        </form>
 
-        {/* Toolbar */}
-        <div className="mt-3 flex flex-wrap items-center gap-2">
-          <p className="text-sm text-muted" aria-live="polite">
-            <span className="text-base font-semibold tabular-nums text-navy">{formatNumber(filtered.length)}</span> shipment records
-          </p>
+          <Button variant="secondary" size="sm" onClick={exportCsv}>
+            <Download className="size-4" aria-hidden />
+            <span className="hidden sm:inline">Export CSV</span>
+          </Button>
+        </div>
+      </div>
 
-          <button
-            type="button"
-            onClick={() => setDrawerOpen(true)}
-            className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-3 py-1.5 text-sm font-medium text-navy hover:bg-surface lg:hidden"
-          >
-            <SlidersHorizontal className="size-4" aria-hidden />
-            Filters
-            {activeFilterCount > 0 ? (
-              <span className="ml-0.5 rounded-full bg-primary px-1.5 text-xs text-primary-foreground">{activeFilterCount}</span>
-            ) : null}
-          </button>
-
-          <div className="ml-auto flex items-center gap-2">
-            <label className="flex items-center gap-1.5 text-sm text-muted">
-              <span className="sr-only sm:not-sr-only">Sort</span>
-              <select
-                aria-label="Sort records"
-                value={params.sort}
-                onChange={(e) => update({ sort: e.target.value as ExploreSort })}
-                className="h-9 rounded-md border border-border bg-background px-2 text-sm text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-              >
-                {EXPLORE_SORTS.map((s) => (
-                  <option key={s.id} value={s.id}>{s.label}</option>
+      {/* Table view */}
+      {view === "table" ? (
+        <div className="overflow-hidden rounded-xl border border-border bg-background shadow-xs">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px] text-sm">
+              <caption className="sr-only">Illustrative shipment records</caption>
+              <thead>
+                <tr className="border-b border-border bg-surface/50 text-left text-xs uppercase tracking-wide text-muted">
+                  <th scope="col" className="px-3 py-3 font-medium w-10"><span className="sr-only">Expand</span></th>
+                  <th scope="col" className="px-3 py-3 font-medium">Date</th>
+                  <th scope="col" className="px-3 py-3 font-medium">Product · HS</th>
+                  <th scope="col" className="px-3 py-3 font-medium">Buyer</th>
+                  <th scope="col" className="px-3 py-3 font-medium">Supplier</th>
+                  <th scope="col" className="px-3 py-3 font-medium">Route</th>
+                  <th scope="col" className="px-3 py-3 text-right font-medium">Value · Qty</th>
+                  <th scope="col" className="px-3 py-3 font-medium">Flow</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pageRows.map((rec) => (
+                  <ShipmentRow key={rec.id} rec={rec} />
                 ))}
-              </select>
-            </label>
-
-            {/* View toggle */}
-            <div role="group" aria-label="View" className="inline-flex rounded-md border border-border bg-surface p-0.5">
-              <button
-                type="button"
-                aria-pressed={view === "table"}
-                aria-label="Table view"
-                onClick={() => setView("table")}
-                className={cn("rounded px-2 py-1.5", view === "table" ? "bg-background text-navy shadow-xs" : "text-muted")}
-              >
-                <TableIcon className="size-4" aria-hidden />
-              </button>
-              <button
-                type="button"
-                aria-pressed={view === "cards"}
-                aria-label="Card view"
-                onClick={() => setView("cards")}
-                className={cn("rounded px-2 py-1.5", view === "cards" ? "bg-background text-navy shadow-xs" : "text-muted")}
-              >
-                <LayoutGrid className="size-4" aria-hidden />
-              </button>
-            </div>
-
-            {view === "table" ? (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setColsOpen((o) => !o)}
-                  aria-expanded={colsOpen}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-border-strong px-3 py-1.5 text-sm font-medium text-navy hover:bg-surface"
-                >
-                  <Columns3 className="size-4" aria-hidden />
-                  <span className="hidden sm:inline">Columns</span>
-                </button>
-                {colsOpen ? (
-                  <div className="absolute right-0 z-10 mt-1 w-48 rounded-md border border-border bg-background p-2 shadow-md">
-                    {OPTIONAL_COLUMNS.map((c) => (
-                      <label key={c.id} className="flex items-center gap-2 rounded px-2 py-1.5 text-sm text-navy hover:bg-surface">
-                        <input
-                          type="checkbox"
-                          checked={showCol(c.id)}
-                          onChange={() => toggleCol(c.id)}
-                          className="size-4 rounded border-border-strong accent-[var(--primary)]"
-                        />
-                        {c.label}
-                      </label>
-                    ))}
-                  </div>
-                ) : null}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ) : (
+        /* Card view */
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          {pageRows.map((rec) => (
+            <div
+              key={rec.id}
+              className="flex flex-col gap-3 rounded-xl border border-border bg-background p-4 transition-shadow hover:shadow-sm"
+            >
+              <div className="flex items-center justify-between">
+                <Badge tone={rec.tradeFlow === "Import" ? "primary" : "neutral"}>{rec.tradeFlow}</Badge>
+                <span className="text-xs text-muted">{formatDate(rec.date)}</span>
               </div>
-            ) : null}
+              <div>
+                <p className="font-medium text-navy line-clamp-2">{rec.productDescription}</p>
+                <p className="mt-0.5 font-mono text-xs text-muted">HS {rec.hsCode}</p>
+              </div>
+              <div className="flex items-center gap-1.5 text-xs text-muted">
+                <Flag code={rec.originCountry} className="h-3 w-4 shrink-0" />
+                {rec.originCountry}
+                <span aria-hidden>→</span>
+                <Flag code={rec.destinationCountry} className="h-3 w-4 shrink-0" />
+                {rec.destinationCountry}
+              </div>
+              <div className="flex items-center justify-between border-t border-border pt-2 text-sm">
+                <span className="tabular-nums text-muted">{formatNumber(rec.quantity)} {rec.unit}</span>
+                <span className="font-semibold tabular-nums text-navy">{formatCurrency(rec.tradeValue)}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
-            <Button variant="secondary" size="sm" onClick={exportCsv} disabled={filtered.length === 0}>
-              <Download className="size-4" aria-hidden />
-              <span className="hidden sm:inline">Export CSV</span>
+      {/* Pagination */}
+      {records.length > EXPLORE_PAGE_SIZE && (
+        <div className="flex items-center justify-between gap-2">
+          <span className="text-sm text-muted">
+            Page {safePage} of {pageCount} · {formatNumber(records.length)} records
+          </span>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => update({ page: Math.max(1, safePage - 1) })} disabled={safePage <= 1}>
+              Previous
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => update({ page: Math.min(pageCount, safePage + 1) })} disabled={safePage >= pageCount}>
+              Next
             </Button>
           </div>
         </div>
+      )}
+    </div>
+  );
+}
 
-        {/* Active filter chips */}
-        {chips.length > 0 ? (
-          <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <span className="text-xs font-medium text-muted">Active filters:</span>
-            {chips.map((chip) => (
-              <span
-                key={chip.key}
-                className="inline-flex items-center gap-1 rounded-full bg-primary-soft py-1 pl-2.5 pr-1 text-xs font-medium text-primary-soft-foreground"
-              >
-                {chip.label}
-                <button
-                  type="button"
-                  onClick={chip.clear}
-                  aria-label={`Remove filter ${chip.label}`}
-                  className="rounded-full p-0.5 hover:bg-primary/15"
-                >
-                  <X className="size-3" aria-hidden />
-                </button>
-              </span>
+/* ── Main ExploreWorkspace ──────────────────────────────────────────────── */
+
+export function ExploreWorkspace({ records }: { records: ExploreRecord[] }) {
+  const params = useExploreUrlParams();
+  const { tab, ...exploreParams } = params;
+
+  const [filterOpen, setFilterOpen] = React.useState(false);
+  const [sidebarOpen, setSidebarOpen] = React.useState(true);
+  const searchRef = React.useRef<HTMLFormElement>(null);
+
+  const update = (patch: Partial<ExploreParams & { tab?: ExploreTab }>) =>
+    writeExploreUrlParams({
+      ...params,
+      ...patch,
+      page: "page" in patch ? (patch.page as number) : 1,
+    });
+
+  const setTab = (t: string) => update({ tab: t as ExploreTab });
+  const reset = () => writeExploreUrlParams({ ...EMPTY_PARAMS, tab });
+
+  const filtered = React.useMemo(
+    () => filterExploreRecords(records, exploreParams),
+    [records, exploreParams],
+  );
+
+  const activeFilterCount = [
+    exploreParams.hsCode, exploreParams.origin, exploreParams.destination,
+    exploreParams.dateFrom, exploreParams.dateTo, exploreParams.minQty,
+    exploreParams.maxQty, exploreParams.minValue, exploreParams.maxValue,
+  ].filter(Boolean).length + (exploreParams.flow !== "all" ? 1 : 0);
+
+  // Active filter chips
+  const chips: { key: string; label: string; clear: () => void }[] = [];
+  if (exploreParams.q) chips.push({ key: "q", label: `"${exploreParams.q}"`, clear: () => update({ q: "" }) });
+  if (exploreParams.hsCode) chips.push({ key: "hs", label: `HS: ${exploreParams.hsCode}`, clear: () => update({ hsCode: "" }) });
+  if (exploreParams.origin) chips.push({ key: "o", label: `Origin: ${getCountryName(exploreParams.origin)}`, clear: () => update({ origin: "" }) });
+  if (exploreParams.destination) chips.push({ key: "d", label: `Dest: ${getCountryName(exploreParams.destination)}`, clear: () => update({ destination: "" }) });
+  if (exploreParams.flow !== "all") chips.push({ key: "f", label: exploreParams.flow === "Import" ? "Imports only" : "Exports only", clear: () => update({ flow: "all" }) });
+  if (exploreParams.dateFrom) chips.push({ key: "df", label: `From ${exploreParams.dateFrom}`, clear: () => update({ dateFrom: "" }) });
+  if (exploreParams.dateTo) chips.push({ key: "dt", label: `To ${exploreParams.dateTo}`, clear: () => update({ dateTo: "" }) });
+
+  return (
+    <div className="space-y-4">
+      {/* ── Search bar ─────────────────────────────────────────────────── */}
+      <form
+        ref={searchRef}
+        role="search"
+        aria-label="Search trade records"
+        onSubmit={(e) => e.preventDefault()}
+        className="rounded-xl border border-border bg-background p-3 shadow-xs"
+      >
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <label htmlFor="ex-mode" className="sr-only">Search mode</label>
+          <select
+            id="ex-mode"
+            value={exploreParams.mode}
+            onChange={(e) => update({ mode: e.target.value as ExploreMode })}
+            className="h-11 rounded-lg border border-border-strong bg-background px-2.5 text-sm font-medium text-navy focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring sm:w-36"
+          >
+            {EXPLORE_MODES.map((m) => (
+              <option key={m.id} value={m.id}>{m.label}</option>
             ))}
+          </select>
+          <div className="relative grow">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted" aria-hidden />
+            <Input
+              type="search"
+              aria-label={`Search by ${exploreParams.mode}`}
+              placeholder={
+                exploreParams.mode === "hs-code"
+                  ? "HS Code, e.g. 300490"
+                  : `Search by ${exploreParams.mode}…`
+              }
+              value={exploreParams.q}
+              onChange={(e) => update({ q: e.target.value })}
+              className="pl-9 h-11"
+            />
+          </div>
+          <Button type="submit" className="h-11 shrink-0">
+            <Search className="size-4" aria-hidden />
+            Search
+          </Button>
+        </div>
+      </form>
+
+      {/* ── Demo notice ────────────────────────────────────────────────── */}
+      <div
+        role="note"
+        className="flex items-start gap-2 rounded-lg border border-warning/30 bg-warning-soft px-3 py-2 text-sm text-warning"
+      >
+        <Info className="mt-0.5 size-4 shrink-0" aria-hidden />
+        <span>
+          <strong>Demonstration environment</strong> — all records are fictional samples that illustrate the Vaskodigama interface.
+        </span>
+      </div>
+
+      {/* ── Result count + active chips ────────────────────────────────── */}
+      {(chips.length > 0 || filtered.length < records.length) && (
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-sm text-muted" aria-live="polite">
+            <span className="font-semibold text-navy">{formatNumber(filtered.length)}</span>
+            {" "}/{" "}
+            {formatNumber(records.length)} records match
+          </span>
+          {chips.map((chip) => (
+            <span
+              key={chip.key}
+              className="inline-flex items-center gap-1 rounded-full bg-primary-soft py-1 pl-2.5 pr-1 text-xs font-medium text-primary-soft-foreground"
+            >
+              {chip.label}
+              <button
+                type="button"
+                onClick={chip.clear}
+                aria-label={`Remove filter ${chip.label}`}
+                className="rounded-full p-0.5 hover:bg-primary/15"
+              >
+                <X className="size-3" aria-hidden />
+              </button>
+            </span>
+          ))}
+          {chips.length > 0 && (
             <button
               type="button"
               onClick={reset}
-              className="ml-1 text-xs font-medium text-muted hover:text-danger"
+              className="text-xs font-medium text-muted hover:text-danger"
             >
               Clear all
             </button>
-          </div>
-        ) : null}
-
-        {/* Results */}
-        <div className="mt-3">
-          {filtered.length === 0 ? (
-            <EmptyState
-              title="No matching shipment records"
-              description="Try removing a filter, expanding the date range or searching with a broader product term."
-              action={
-                <Button variant="outline" size="sm" onClick={reset}>Clear all filters</Button>
-              }
-            />
-          ) : view === "cards" ? (
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-              {pageRows.map((rec) => (
-                <RecordCard key={rec.id} rec={rec} onOpen={() => setDetail(rec)} />
-              ))}
-            </div>
-          ) : (
-            <div className="scroll-x rounded-[14px] border border-border bg-background shadow-xs">
-              <table className="w-full text-sm">
-                <caption className="sr-only">Illustrative trade records</caption>
-                <thead>
-                  <tr className="border-b border-border text-left text-xs uppercase tracking-wide text-muted">
-                    <th scope="col" className="px-3 py-2.5 font-medium">Date</th>
-                    <th scope="col" className="px-3 py-2.5 font-medium">Product</th>
-                    <th scope="col" className="px-3 py-2.5 font-medium">HS</th>
-                    <th scope="col" className="px-3 py-2.5 font-medium">Importer</th>
-                    <th scope="col" className="px-3 py-2.5 font-medium">Exporter</th>
-                    <th scope="col" className="px-3 py-2.5 font-medium">Route</th>
-                    {showCol("originPort") ? <th scope="col" className="px-3 py-2.5 font-medium">Origin port</th> : null}
-                    {showCol("destinationPort") ? <th scope="col" className="px-3 py-2.5 font-medium">Dest. port</th> : null}
-                    <th scope="col" className="px-3 py-2.5 text-right font-medium">Qty</th>
-                    <th scope="col" className="px-3 py-2.5 text-right font-medium">Value</th>
-                    {showCol("transportMode") ? <th scope="col" className="px-3 py-2.5 font-medium">Mode</th> : null}
-                    <th scope="col" className="px-3 py-2.5 font-medium">Flow</th>
-                    {showCol("reference") ? <th scope="col" className="px-3 py-2.5 font-medium">Reference</th> : null}
-                    <th scope="col" className="px-3 py-2.5 text-right font-medium"><span className="sr-only">Details</span></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {pageRows.map((rec) => (
-                    <tr key={rec.id} className="border-b border-border/60 last:border-0 hover:bg-surface">
-                      <td className="whitespace-nowrap px-3 py-2.5 text-muted">{formatDate(rec.date)}</td>
-                      <td className="px-3 py-2.5 text-navy">
-                        <span className="block max-w-[220px] truncate font-medium" title={rec.productDescription}>
-                          {rec.productDescription}
-                        </span>
-                      </td>
-                      <td className="px-3 py-2.5">
-                        <span className="rounded bg-surface-2 px-1.5 py-0.5 font-mono text-xs tabular-nums text-muted-strong">{rec.hsCode}</span>
-                      </td>
-                      <td className="px-3 py-2.5 text-muted">
-                        <span className="block max-w-[160px] truncate" title={rec.importer}>{rec.importer}</span>
-                      </td>
-                      <td className="px-3 py-2.5 text-muted">
-                        <span className="block max-w-[160px] truncate" title={rec.exporter}>{rec.exporter}</span>
-                      </td>
-                      <td className="px-3 py-2.5 text-muted">
-                        <ShipmentRoute origin={rec.originCountry} destination={rec.destinationCountry} compact />
-                      </td>
-                      {showCol("originPort") ? <td className="px-3 py-2.5 text-muted">{rec.originPort}</td> : null}
-                      {showCol("destinationPort") ? <td className="px-3 py-2.5 text-muted">{rec.destinationPort}</td> : null}
-                      <td className="px-3 py-2.5 text-right tabular-nums text-muted">{formatNumber(rec.quantity)} {rec.unit}</td>
-                      <td className="px-3 py-2.5 text-right tabular-nums text-navy">{formatCurrency(rec.tradeValue)}</td>
-                      {showCol("transportMode") ? <td className="px-3 py-2.5 text-muted">{rec.transportMode}</td> : null}
-                      <td className="px-3 py-2.5"><Badge tone={rec.tradeFlow === "Import" ? "primary" : "neutral"}>{rec.tradeFlow}</Badge></td>
-                      {showCol("reference") ? <td className="px-3 py-2.5 tabular-nums text-muted">{rec.reference}</td> : null}
-                      <td className="px-3 py-2.5 text-right">
-                        <Button variant="ghost" size="sm" onClick={() => setDetail(rec)}>View</Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
           )}
         </div>
+      )}
 
-        {/* Pagination */}
-        {filtered.length > 0 ? (
-          <div className="mt-4 flex items-center justify-between gap-2">
-            <span className="text-sm text-muted">
-              Page {safePage} of {pageCount} · {formatNumber(filtered.length)} shipment records
-            </span>
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => update({ page: Math.max(1, safePage - 1) })} disabled={safePage <= 1}>
-                Previous
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => update({ page: Math.min(pageCount, safePage + 1) })} disabled={safePage >= pageCount}>
-                Next
-              </Button>
+      {/* ── Tabs + content ─────────────────────────────────────────────── */}
+      <div className="lg:grid lg:grid-cols-[256px_1fr] lg:gap-5">
+        {/* Desktop sidebar */}
+        <aside className={cn("hidden lg:block", !sidebarOpen && "lg:hidden")}>
+          <div className="sticky top-24 rounded-xl border border-border bg-background p-4 shadow-xs">
+            <div className="mb-4 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <SlidersHorizontal className="size-4 text-primary" aria-hidden />
+                <h2 className="text-sm font-semibold text-navy">Filters</h2>
+                {activeFilterCount > 0 && (
+                  <span className="rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </div>
+              <button
+                type="button"
+                onClick={() => setSidebarOpen(false)}
+                className="text-xs text-muted hover:text-navy"
+                aria-label="Collapse filters"
+              >
+                <X className="size-4" aria-hidden />
+              </button>
             </div>
+            <FiltersForm params={exploreParams} update={update} onReset={reset} />
           </div>
-        ) : null}
+        </aside>
+
+        {/* Collapsed sidebar toggle */}
+        {!sidebarOpen && (
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="hidden lg:flex items-center gap-1.5 self-start rounded-lg border border-border px-3 py-2 text-sm font-medium text-muted hover:text-navy"
+            aria-label="Show filters"
+          >
+            <SlidersHorizontal className="size-4" aria-hidden />
+            Filters
+            {activeFilterCount > 0 && (
+              <span className="ml-0.5 rounded-full bg-primary px-1.5 py-0.5 text-[10px] font-bold text-white">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        )}
+
+        {/* Main content */}
+        <div className="min-w-0 space-y-4">
+          {/* Tab bar */}
+          <div
+            role="tablist"
+            aria-label="Result categories"
+            className="flex gap-0.5 overflow-x-auto rounded-xl border border-border bg-surface/60 p-1 scrollbar-hide"
+          >
+            {EXPLORE_TABS.map((t) => {
+              const Icon = t.icon;
+              const count = t.countFn ? t.countFn(filtered) : undefined;
+              const isActive = tab === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  role="tab"
+                  id={`tab-${t.id}`}
+                  aria-selected={isActive}
+                  aria-controls={`panel-${t.id}`}
+                  onClick={() => setTab(t.id)}
+                  className={cn(
+                    "relative flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-primary",
+                    isActive
+                      ? "bg-background text-navy shadow-xs"
+                      : "text-muted hover:text-navy",
+                  )}
+                >
+                  <Icon className="size-3.5" aria-hidden />
+                  {t.label}
+                  {count !== undefined && (
+                    <span
+                      className={cn(
+                        "rounded-full px-1.5 py-0.5 text-[10px] font-semibold tabular-nums",
+                        isActive ? "bg-primary-soft text-primary" : "bg-surface-2 text-muted",
+                      )}
+                    >
+                      {formatCompact(count)}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Mobile filter button (inside main area) */}
+          <div className="flex items-center gap-2 lg:hidden">
+            <button
+              type="button"
+              onClick={() => setFilterOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border-strong px-3 py-1.5 text-sm font-medium text-navy hover:bg-surface"
+            >
+              <SlidersHorizontal className="size-4" aria-hidden />
+              Filters
+              {activeFilterCount > 0 && (
+                <span className="ml-0.5 rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">{activeFilterCount}</span>
+              )}
+            </button>
+          </div>
+
+          {/* Tab panels */}
+          {EXPLORE_TABS.map((t) => (
+            <div
+              key={t.id}
+              id={`panel-${t.id}`}
+              role="tabpanel"
+              aria-labelledby={`tab-${t.id}`}
+              hidden={tab !== t.id}
+            >
+              {tab === t.id && (
+                <>
+                  {t.id === "overview" && (
+                    <ExploreOverview
+                      records={filtered}
+                      onTabChange={setTab}
+                      countryName={getCountryName}
+                    />
+                  )}
+                  {t.id === "shipments" && (
+                    <ShipmentsPanel
+                      records={filtered}
+                      params={exploreParams}
+                      update={update}
+                      onReset={reset}
+                    />
+                  )}
+                  {t.id === "buyers" && (
+                    <BuyersPanel records={filtered} countryName={getCountryName} />
+                  )}
+                  {t.id === "suppliers" && (
+                    <SuppliersPanel records={filtered} countryName={getCountryName} />
+                  )}
+                  {t.id === "countries" && (
+                    <CountriesPanel records={filtered} countryName={getCountryName} />
+                  )}
+                  {t.id === "hs-codes" && (
+                    <HSCodesPanel records={filtered} countryName={getCountryName} />
+                  )}
+                  {t.id === "routes" && (
+                    <RoutesPanel records={filtered} countryName={getCountryName} />
+                  )}
+                </>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Mobile filter drawer */}
-      <Modal open={drawerOpen} onClose={() => setDrawerOpen(false)} title="Filters" variant="drawer-right">
-        <FiltersForm params={params} update={update} onReset={reset} />
+      <Modal open={filterOpen} onClose={() => setFilterOpen(false)} title="Filters" variant="drawer-right">
+        <FiltersForm params={exploreParams} update={update} onReset={reset} />
         <div className="mt-4">
-          <Button className="w-full" onClick={() => setDrawerOpen(false)}>
-            Show {formatNumber(filtered.length)} shipment records
+          <Button className="w-full" onClick={() => setFilterOpen(false)}>
+            Show {formatNumber(filtered.length)} records
           </Button>
         </div>
-      </Modal>
-
-      {/* Record detail drawer */}
-      <Modal
-        open={detail !== null}
-        onClose={() => setDetail(null)}
-        title="Trade record"
-        description="Illustrative sample record — not a verified customs filing."
-        variant="drawer-right"
-      >
-        {detail ? (
-          <>
-            <dl className="divide-y divide-border text-sm">
-              {([
-                ["Reference", detail.reference],
-                ["Date", formatDate(detail.date)],
-                ["Product", detail.productDescription],
-                ["HS code", detail.hsCode],
-                ["Importer / Buyer", detail.importer],
-                ["Exporter / Supplier", detail.exporter],
-                ["Origin", `${countryName(detail.originCountry)}${detail.originState ? `, ${detail.originState}` : ""}`],
-                ["Destination", `${countryName(detail.destinationCountry)}${detail.destinationState ? `, ${detail.destinationState}` : ""}`],
-                ["Origin port", detail.originPort],
-                ["Destination port", detail.destinationPort],
-                ["Quantity", `${formatNumber(detail.quantity)} ${detail.unit}`],
-                ["Trade value", formatCurrency(detail.tradeValue)],
-                ["Trade flow", detail.tradeFlow],
-                ["Transport mode", detail.transportMode ?? "—"],
-              ] as [string, string][]).map(([k, v]) => (
-                <div key={k} className="flex justify-between gap-4 py-2.5">
-                  <dt className="text-muted">{k}</dt>
-                  <dd className="text-right font-medium text-navy">{v}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="mt-4 flex items-center gap-3">
-              <IllustrativeBadge />
-              <button
-                type="button"
-                onClick={() => void navigator.clipboard?.writeText(detail.reference)}
-                className="text-sm text-primary hover:underline"
-              >
-                Copy reference
-              </button>
-            </div>
-          </>
-        ) : null}
       </Modal>
     </div>
   );
 }
+
