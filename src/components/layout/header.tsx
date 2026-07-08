@@ -18,6 +18,9 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
   const toggleRef = useRef<HTMLButtonElement>(null);
+  // The pharma-landing draft is a self-contained review page — its nav
+  // shouldn't send reviewers wandering into the rest of (unfinished) site.
+  const isPharmaLanding = pathname?.startsWith("/pharma-landing");
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -63,25 +66,27 @@ export function Header() {
       >
         <Logo />
 
-        <ul className="ml-4 hidden items-center gap-1 lg:flex">
-          {mainNav.map((item) =>
-            item.children ? (
-              <DropdownNav key={item.label} item={item} pathname={pathname} />
-            ) : (
-              <li key={item.label}>
-                <Link
-                  href={item.href}
-                  className={cn(
-                    "rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:bg-surface hover:text-navy",
-                    samePath(pathname, item.href) && "text-primary",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              </li>
-            ),
-          )}
-        </ul>
+        {isPharmaLanding ? null : (
+          <ul className="ml-4 hidden items-center gap-1 lg:flex">
+            {mainNav.map((item) =>
+              item.children ? (
+                <DropdownNav key={item.label} item={item} pathname={pathname} />
+              ) : (
+                <li key={item.label}>
+                  <Link
+                    href={item.href}
+                    className={cn(
+                      "rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:bg-surface hover:text-navy",
+                      samePath(pathname, item.href) && "text-primary",
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                </li>
+              ),
+            )}
+          </ul>
+        )}
 
         <div className="ml-auto hidden items-center gap-2 lg:flex">
           <Link
@@ -112,7 +117,7 @@ export function Header() {
       </nav>
 
       {mobileOpen ? (
-        <MobileMenu pathname={pathname} onNavigate={closeMobile} />
+        <MobileMenu pathname={pathname} onNavigate={closeMobile} showNav={!isPharmaLanding} />
       ) : null}
     </header>
   );
@@ -198,9 +203,11 @@ function DropdownNav({
 function MobileMenu({
   pathname,
   onNavigate,
+  showNav = true,
 }: {
   pathname: string;
   onNavigate: () => void;
+  showNav?: boolean;
 }) {
   return (
     <div
@@ -212,32 +219,34 @@ function MobileMenu({
       className="border-t border-border bg-background lg:hidden"
     >
       <div className="mx-auto max-w-6xl space-y-1 px-4 py-4 sm:px-6">
-        {mainNav.map((item) => (
-          <div key={item.label}>
-            <Link
-              href={item.href}
-              className={cn(
-                "block rounded-md px-3 py-2 text-sm font-semibold text-navy hover:bg-surface",
-                samePath(pathname, item.href) && "text-primary",
-              )}
-            >
-              {item.label}
-            </Link>
-            {item.children ? (
-              <div className="ml-3 border-l border-border pl-3">
-                {item.children.map((c) => (
-                  <Link
-                    key={c.href}
-                    href={c.href}
-                    className="block rounded-md px-3 py-1.5 text-sm text-muted-strong hover:bg-surface"
-                  >
-                    {c.label}
-                  </Link>
-                ))}
+        {showNav
+          ? mainNav.map((item) => (
+              <div key={item.label}>
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "block rounded-md px-3 py-2 text-sm font-semibold text-navy hover:bg-surface",
+                    samePath(pathname, item.href) && "text-primary",
+                  )}
+                >
+                  {item.label}
+                </Link>
+                {item.children ? (
+                  <div className="ml-3 border-l border-border pl-3">
+                    {item.children.map((c) => (
+                      <Link
+                        key={c.href}
+                        href={c.href}
+                        className="block rounded-md px-3 py-1.5 text-sm text-muted-strong hover:bg-surface"
+                      >
+                        {c.label}
+                      </Link>
+                    ))}
+                  </div>
+                ) : null}
               </div>
-            ) : null}
-          </div>
-        ))}
+            ))
+          : null}
         <div className="grid gap-2 pt-3">
           <ButtonLink href="/login" variant="ghost" className="justify-start">
             Sign in
