@@ -37,6 +37,7 @@ import {
   Settings2,
   ShoppingBag,
   Boxes,
+  Route,
 } from "lucide-react";
 import { Eyebrow } from "@/components/ui/misc";
 import { ButtonLink } from "@/components/ui/button";
@@ -558,11 +559,6 @@ export function UseCases() {
 
 /* ── Global coverage ─────────────────────────────────────────────────────── */
 
-interface CoverageChip {
-  label: string;
-  value: string;
-}
-
 /**
  * Illustrative route pairs — abstract arc layout (percent-space), not a
  * geographic projection. Node positions are looked up by code so the two
@@ -680,7 +676,38 @@ const SHIPMENT_ROWS = [
   { product: "Copper Wire", hs: "7408.11", origin: "CN", destination: "US", qty: "6.5K kg", value: "$31,900" },
 ];
 
-export function GlobalCoverage({ chips }: { chips: CoverageChip[] }) {
+const HEADLINE_METRICS: { icon: LucideIcon; value: string; label: string; sub: string; tint: string }[] = [
+  {
+    icon: Ship,
+    value: "2,600M+",
+    label: "Shipment Records",
+    sub: "Global trade data",
+    tint: "bg-primary-soft text-primary",
+  },
+  {
+    icon: Building2,
+    value: "1M+",
+    label: "Companies Covered",
+    sub: "Importers, exporters & suppliers",
+    tint: "bg-success-soft text-success",
+  },
+  {
+    icon: Package,
+    value: "Millions+",
+    label: "Products & HS Codes",
+    sub: "Across all HSN chapters",
+    tint: "bg-[color-mix(in_srgb,var(--chart-2)_16%,white)] text-[var(--chart-2)]",
+  },
+  {
+    icon: Route,
+    value: "Thousands+",
+    label: "Trade Routes",
+    sub: "Origin-destination connections",
+    tint: "bg-warning-soft text-warning",
+  },
+];
+
+export function GlobalCoverage() {
   return (
     <div id="global-coverage" className="surface-hero-light relative overflow-hidden rounded-[28px] border border-border px-6 py-14 sm:px-12">
       <div className="bg-route-grid-light absolute inset-0 opacity-70" aria-hidden />
@@ -783,19 +810,27 @@ export function GlobalCoverage({ chips }: { chips: CoverageChip[] }) {
           </Reveal>
         </div>
 
-        <Reveal delay={100} className="mt-9 flex flex-wrap justify-center gap-3">
-          {chips.map((c) => (
-            <span
-              key={c.label}
-              className="inline-flex items-center gap-2 rounded-full border border-border bg-background px-4 py-2 text-sm shadow-xs"
-            >
-              <span className="font-bold tabular-nums text-navy">{c.value}</span>
-              <span className="text-muted">{c.label}</span>
-            </span>
-          ))}
+        <Reveal delay={100} className="mt-9 rounded-2xl border border-border bg-background p-5">
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {HEADLINE_METRICS.map((m) => {
+              const Icon = m.icon;
+              return (
+                <div key={m.label} className="flex items-start gap-3">
+                  <span className={cn("flex size-11 shrink-0 items-center justify-center rounded-xl", m.tint)}>
+                    <Icon className="size-5" aria-hidden />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-xl font-extrabold text-navy">{m.value}</p>
+                    <p className="text-sm font-semibold text-navy">{m.label}</p>
+                    <p className="text-xs text-muted">{m.sub}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
         </Reveal>
         <p className="mt-5 flex items-center justify-center gap-2 text-center text-xs text-muted">
-          Illustrative example coverage.
+          Illustrative example figures — not tied to a live customs data feed.
           <IllustrativeBadge />
         </p>
       </div>

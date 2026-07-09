@@ -34,13 +34,7 @@ const HERO_POINTS = [
 ];
 
 export default async function PharmaLandingPage() {
-  const [summary, coverage, buyers, suppliers, shipments] = await Promise.all([
-    tradeData.getTradeAnalytics(),
-    tradeData.listCoverage(),
-    tradeData.listBuyers(),
-    tradeData.listSuppliers(),
-    tradeData.listShipments(),
-  ]);
+  const coverage = await tradeData.listCoverage();
 
   const metrics = [
     { label: "Countries covered", value: `${coverage.length}+` },
@@ -49,15 +43,6 @@ export default async function PharmaLandingPage() {
     { label: "Intelligence", value: "Buyer & Supplier" },
     { label: "Trade records", value: "Shipment-Level" },
     { label: "Trade insights", value: "Country-Wise" },
-  ];
-
-  const coverageChips = [
-    { label: "Import markets", value: `${summary.topImporters.length}` },
-    { label: "Export markets", value: `${summary.topExporters.length}` },
-    { label: "Buyer networks", value: `${buyers.length}` },
-    { label: "Supplier networks", value: `${suppliers.length}` },
-    { label: "Trade routes", value: `${summary.topImporters.length + summary.topExporters.length}` },
-    { label: "Shipment records", value: `${shipments.length}` },
   ];
 
   return (
@@ -144,7 +129,7 @@ export default async function PharmaLandingPage() {
 
       {/* ── Country coverage ─────────────────────────────────────────────── */}
       <Section muted className="py-16 sm:py-20">
-        <GlobalCoverage chips={coverageChips} />
+        <GlobalCoverage />
       </Section>
 
       {/* ── How it connects ──────────────────────────────────────────────── */}
