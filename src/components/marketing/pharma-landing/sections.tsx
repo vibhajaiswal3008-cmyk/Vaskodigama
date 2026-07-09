@@ -5,9 +5,7 @@ import {
   Factory,
   LineChart,
   Globe2,
-  FlaskConical,
   Pill,
-  Beaker,
   ShoppingCart,
   ShieldCheck,
   Ship,
@@ -28,14 +26,117 @@ import {
   Cpu,
   Gauge,
   ChevronDown,
+  Layers,
+  ArrowDownToLine,
+  ArrowUpFromLine,
+  Package,
+  Wheat,
+  Droplets,
+  Shirt,
+  Gem,
+  Settings2,
+  ShoppingBag,
+  HelpCircle,
+  Boxes,
 } from "lucide-react";
 import { Eyebrow } from "@/components/ui/misc";
-import { Card, CardContent } from "@/components/ui/card";
 import { ButtonLink } from "@/components/ui/button";
 import { Reveal } from "@/components/shared/reveal";
 import { IllustrativeBadge } from "@/components/shared/illustrative";
 import { Flag } from "@/components/shared/flag";
+import { OpportunityScoreCard } from "@/components/opportunity/opportunity-score";
+import type { OpportunityScore } from "@/types";
 import { cn } from "@/lib/utils";
+
+/* ── Data coverage ────────────────────────────────────────────────────────── */
+
+interface CoverageCard {
+  icon: LucideIcon;
+  value?: string;
+  title: string;
+  body: string;
+}
+
+const DATA_COVERAGE_CARDS: CoverageCard[] = [
+  {
+    icon: Globe2,
+    value: "40",
+    title: "Countries covered",
+    body: "Import and export activity spanning major global trade markets.",
+  },
+  {
+    icon: Layers,
+    value: "100",
+    title: "HS chapters",
+    body: "Full harmonised-system coverage, from raw materials to finished goods.",
+  },
+  {
+    icon: ArrowDownToLine,
+    title: "Import data",
+    body: "See what markets are bringing in, from whom, and at what price.",
+  },
+  {
+    icon: ArrowUpFromLine,
+    title: "Export data",
+    body: "Track what's moving out, to which destinations, and in what volume.",
+  },
+  {
+    icon: Ship,
+    title: "Shipment records",
+    body: "Product, quantity, value and route detail behind every trade.",
+  },
+  {
+    icon: Users,
+    title: "Buyer & supplier mapping",
+    body: "Identify the companies actually active on both sides of a trade.",
+  },
+  {
+    icon: MapIcon,
+    title: "Country-wise insights",
+    body: "Compare demand and supply activity across origin and destination markets.",
+  },
+  {
+    icon: Package,
+    title: "Product-wise trade movement",
+    body: "Follow how a specific product or category moves through global trade.",
+  },
+];
+
+export function DataCoverage() {
+  return (
+    <>
+      <Reveal className="mx-auto max-w-2xl text-center">
+        <Eyebrow>Data coverage</Eyebrow>
+        <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+          Trade Data Coverage Built for Global Market Decisions
+        </h2>
+        <p className="mt-3 text-muted">
+          Vaskodigama is not limited to one industry — it&apos;s a structured
+          view of how products move across global import-export markets.
+        </p>
+      </Reveal>
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {DATA_COVERAGE_CARDS.map((c, i) => {
+          const Icon = c.icon;
+          return (
+            <Reveal key={c.title} delay={i * 50}>
+              <div className="tile-glow flex h-full flex-col rounded-xl border border-border bg-background p-5">
+                <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                  <Icon className="size-5" aria-hidden />
+                </span>
+                {c.value ? (
+                  <p className="mt-4 text-2xl font-extrabold tabular-nums text-navy">{c.value}</p>
+                ) : null}
+                <h3 className={cn("font-semibold text-navy", c.value ? "mt-1" : "mt-4")}>{c.title}</h3>
+                <p className="mt-1.5 flex-1 text-sm text-muted">{c.body}</p>
+              </div>
+            </Reveal>
+          );
+        })}
+      </div>
+    </>
+  );
+}
 
 /* ── Problem → Solution ──────────────────────────────────────────────────── */
 
@@ -43,12 +144,12 @@ const PROBLEM_CARDS: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: Users,
     title: "Identify Active Buyers",
-    body: "Surface importers already showing demand for your API, FDF or KSM, instead of starting business development from a cold list.",
+    body: "Surface importers already showing demand for your product, instead of starting business development from a cold list.",
   },
   {
     icon: Factory,
     title: "Track Reliable Suppliers",
-    body: "Compare exporters and contract manufacturers by visible shipment history so sourcing decisions rest on evidence, not a single quote.",
+    body: "Compare exporters and manufacturers by visible shipment history so sourcing decisions rest on evidence, not a single quote.",
   },
   {
     icon: LineChart,
@@ -58,18 +159,18 @@ const PROBLEM_CARDS: { icon: LucideIcon; title: string; body: string }[] = [
   {
     icon: Globe2,
     title: "Discover High-Potential Markets",
-    body: "Rank destination and origin countries by trade activity to prioritise where a molecule or formulation is worth pursuing next.",
+    body: "Rank destination and origin countries by trade activity to prioritise where a product or category is worth pursuing next.",
   },
 ];
 
-/* Raw shipment record — one illustrative example, consistent with the
-   Metformin API sample used throughout the rest of this page. */
+/* Raw shipment record — one illustrative example, used consistently across
+   this page's sample artifacts. */
 const RAW_RECORD_FIELDS = [
-  { label: "Product", value: "Metformin HCl" },
-  { label: "HS code", value: "2929.90" },
-  { label: "Buyer", value: "Arclight Medical Supplies" },
+  { label: "Product", value: "Solar Panels" },
+  { label: "HS code", value: "8541.40" },
+  { label: "Buyer", value: "Arclight Energy Supplies" },
   { label: "Supplier", value: "Northstar Industrial Components" },
-  { label: "Quantity", value: "6.4K kg" },
+  { label: "Quantity", value: "6.4K units" },
   { label: "Value", value: "$19,815" },
   { label: "Origin → destination", value: "IN → GB" },
 ];
@@ -84,10 +185,10 @@ const INTELLIGENCE_CHIPS: { icon: LucideIcon; label: string }[] = [
 ];
 
 const DECISION_OUTPUTS: { icon: LucideIcon; label: string; value: string }[] = [
-  { icon: Users, label: "Active buyers", value: "5" },
-  { icon: Factory, label: "Reliable suppliers", value: "4" },
-  { icon: DollarSign, label: "Average price", value: "$3/kg" },
-  { icon: MapIcon, label: "Top markets", value: "40" },
+  { icon: Users, label: "Active buyers", value: "Identified" },
+  { icon: Factory, label: "Reliable suppliers", value: "Verified" },
+  { icon: DollarSign, label: "Average price", value: "Benchmarked" },
+  { icon: MapIcon, label: "Top markets", value: "Ranked" },
   { icon: Gauge, label: "Opportunity score", value: "72/100" },
 ];
 
@@ -186,7 +287,7 @@ function DataTransformArtifact() {
                     <Icon className="size-3.5 shrink-0 text-primary" aria-hidden />
                     {o.label}
                   </span>
-                  <span className="font-semibold tabular-nums text-navy">{o.value}</span>
+                  <span className="font-semibold text-navy">{o.value}</span>
                 </li>
               );
             })}
@@ -194,7 +295,7 @@ function DataTransformArtifact() {
         </div>
       </div>
       <p className="mt-4 flex items-center justify-center gap-1.5 text-center text-xs text-muted">
-        Illustrative example, one Metformin API record <IllustrativeBadge />
+        Illustrative example, one sample trade record <IllustrativeBadge />
       </p>
     </div>
   );
@@ -206,13 +307,14 @@ export function ProblemSolution() {
       <Reveal className="mx-auto max-w-2xl text-center">
         <Eyebrow>Why Vaskodigama</Eyebrow>
         <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          Pharma Trade Data Is Complex. Vaskodigama Makes It Actionable.
+          Raw Trade Data Is Complex. Vaskodigama Makes It Decision-Ready.
         </h2>
         <p className="mt-3 text-muted">
-          Pharmaceutical companies often struggle to identify reliable buyers,
-          suppliers, pricing benchmarks and market demand across global trade
-          records. Vaskodigama organises API, FDF and KSM trade intelligence
-          into searchable, structured, decision-ready insights.
+          Import-export data is often scattered, unstructured and difficult to
+          interpret. Vaskodigama organises trade records into clear business
+          insights so teams can understand who is buying, who is supplying,
+          what prices are moving, which countries are active, and where new
+          opportunities exist.
         </p>
       </Reveal>
 
@@ -240,78 +342,53 @@ export function ProblemSolution() {
   );
 }
 
-/* ── Product categories ──────────────────────────────────────────────────── */
+/* ── HS chapter coverage ──────────────────────────────────────────────────── */
 
-interface ProductCategory {
+interface HsCategory {
   icon: LucideIcon;
-  tag: string;
   title: string;
-  body: string;
   tint: string;
 }
 
-const PRODUCT_CATEGORIES: ProductCategory[] = [
-  {
-    icon: FlaskConical,
-    tag: "APIs",
-    title: "Active Pharmaceutical Ingredients (APIs)",
-    body: "Search API trade records, identify active buyers and suppliers, and analyse import-export volume, pricing and destination markets.",
-    tint: "bg-primary-soft text-primary",
-  },
-  {
-    icon: Pill,
-    tag: "FDFs",
-    title: "Finished Dosage Formulations (FDFs)",
-    body: "Explore formulation-level trade intelligence — product demand, buyer activity, supplier consistency and global distribution patterns.",
-    tint: "bg-[color-mix(in_srgb,var(--chart-2)_16%,white)] text-[var(--chart-2)]",
-  },
-  {
-    icon: Beaker,
-    tag: "KSMs",
-    title: "Key Starting Materials (KSMs)",
-    body: "Track KSM and intermediate trade flows, supplier networks, origin countries and sourcing opportunities across the supply chain.",
-    tint: "bg-success-soft text-success",
-  },
+const HS_CATEGORIES: HsCategory[] = [
+  { icon: Wheat, title: "Agriculture & Food Products", tint: "bg-success-soft text-success" },
+  { icon: Boxes, title: "Chemicals & Allied Products", tint: "bg-primary-soft text-primary" },
+  { icon: Droplets, title: "Plastics & Rubber", tint: "bg-[color-mix(in_srgb,var(--chart-2)_16%,white)] text-[var(--chart-2)]" },
+  { icon: Shirt, title: "Textiles & Apparel", tint: "bg-primary-soft text-primary" },
+  { icon: Gem, title: "Metals & Minerals", tint: "bg-warning-soft text-warning" },
+  { icon: Settings2, title: "Machinery & Equipment", tint: "bg-success-soft text-success" },
+  { icon: Cpu, title: "Electronics & Electricals", tint: "bg-[color-mix(in_srgb,var(--chart-2)_16%,white)] text-[var(--chart-2)]" },
+  { icon: Pill, title: "Pharma & Healthcare", tint: "bg-primary-soft text-primary" },
+  { icon: ShoppingBag, title: "Consumer Goods", tint: "bg-warning-soft text-warning" },
+  { icon: Package, title: "Industrial Materials", tint: "bg-success-soft text-success" },
 ];
 
-export function ProductCategories() {
+export function HsChapterCoverage() {
   return (
     <>
       <Reveal className="mx-auto max-w-2xl text-center">
-        <Eyebrow>Product intelligence</Eyebrow>
+        <Eyebrow>HS chapter coverage</Eyebrow>
         <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          One platform for APIs, FDFs and KSMs
+          Coverage Across All 100 HS Chapters
         </h2>
         <p className="mt-3 text-muted">
-          Search across three connected layers of the pharmaceutical supply
-          chain, each with its own trade view.
+          From agriculture, chemicals, plastics, textiles and metals to
+          machinery, electronics, pharma, consumer goods and industrial
+          materials — Vaskodigama supports import-export intelligence across
+          all 100 HS chapters.
         </p>
       </Reveal>
-      <div className="mt-10 grid gap-5 lg:grid-cols-3">
-        {PRODUCT_CATEGORIES.map((c, i) => {
+      <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
+        {HS_CATEGORIES.map((c, i) => {
           const Icon = c.icon;
           return (
-            <Reveal key={c.tag} delay={i * 90}>
-              <Card className="tile-glow h-full">
-                <CardContent className="flex h-full flex-col pt-6">
-                  <div className="flex items-center justify-between">
-                    <span className={cn("flex size-11 items-center justify-center rounded-xl", c.tint)}>
-                      <Icon className="size-5" aria-hidden />
-                    </span>
-                    <span className="rounded-full border border-border-strong px-2.5 py-0.5 text-xs font-semibold text-muted-strong">
-                      {c.tag}
-                    </span>
-                  </div>
-                  <h3 className="mt-4 text-lg font-semibold text-navy">{c.title}</h3>
-                  <p className="mt-1.5 flex-1 text-sm text-muted">{c.body}</p>
-                  <Link
-                    href="/solutions/pharmaceuticals"
-                    className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:underline"
-                  >
-                    Learn more <ArrowRight className="size-3.5" aria-hidden />
-                  </Link>
-                </CardContent>
-              </Card>
+            <Reveal key={c.title} delay={i * 40}>
+              <div className="tile-glow flex h-full flex-col items-center gap-2.5 rounded-xl border border-border bg-background p-4 text-center">
+                <span className={cn("flex size-10 items-center justify-center rounded-xl", c.tint)}>
+                  <Icon className="size-5" aria-hidden />
+                </span>
+                <p className="text-xs font-semibold leading-tight text-navy">{c.title}</p>
+              </div>
             </Reveal>
           );
         })}
@@ -320,7 +397,7 @@ export function ProductCategories() {
   );
 }
 
-/* ── Key platform features ───────────────────────────────────────────────── */
+/* ── Core intelligence features ──────────────────────────────────────────── */
 
 type MicroVisual = { kind: "bars"; values: number[] } | { kind: "route" } | { kind: "table" };
 
@@ -328,37 +405,37 @@ const KEY_FEATURES: { icon: LucideIcon; title: string; body: string; visual: Mic
   {
     icon: ShoppingCart,
     title: "Buyer Intelligence",
-    body: "Find active importers, buyer portfolios, purchase frequency and product-wise buyer activity.",
+    body: "Find active importers, buyer portfolios, purchase frequency, product-wise buyer activity and country-wise demand.",
     visual: { kind: "bars", values: [40, 65, 55, 80, 70] },
   },
   {
     icon: Factory,
-    title: "Supplier Intelligence",
-    body: "Identify exporters, shipment history, supply countries and company-level performance.",
+    title: "Supplier & Exporter Intelligence",
+    body: "Identify exporters, suppliers, origin countries, shipment history, supplier consistency and company-level trade activity.",
     visual: { kind: "bars", values: [60, 45, 75, 50, 85] },
   },
   {
     icon: LineChart,
     title: "Price Intelligence",
-    body: "Analyse average pricing, import/export rates, value trends and product-wise price movement.",
+    body: "Analyse average import/export prices, shipment values, quantity trends, price movement and route-level pricing benchmarks.",
     visual: { kind: "bars", values: [30, 42, 38, 58, 74] },
   },
   {
     icon: Ship,
     title: "Shipment Records",
-    body: "Access structured trade records with product, quantity, value, country, buyer and supplier detail.",
+    body: "Access structured trade records with product description, HS code, buyer, supplier, origin, destination, quantity, value and route.",
     visual: { kind: "table" },
   },
   {
     icon: MapIcon,
     title: "Market Analysis",
-    body: "Understand which countries are importing or exporting a given API, FDF or KSM, and where demand is rising.",
+    body: "Understand which countries are importing or exporting a product, where demand is rising, and which product-country combinations are worth exploring.",
     visual: { kind: "route" },
   },
   {
     icon: Radar,
     title: "Competitor Tracking",
-    body: "Monitor comparable companies — their trade activity, product focus and shipment volume.",
+    body: "Track what similar companies are importing or exporting, which markets they serve, and their shipment activity and trading partners.",
     visual: { kind: "bars", values: [55, 55, 68, 40, 62] },
   },
 ];
@@ -411,9 +488,9 @@ export function KeyFeatures() {
   return (
     <>
       <Reveal className="mx-auto max-w-2xl text-center">
-        <Eyebrow>Platform features</Eyebrow>
+        <Eyebrow>Core intelligence features</Eyebrow>
         <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          Everything you need to decode pharma trade opportunities
+          Everything you need to decode global trade opportunities
         </h2>
       </Reveal>
       <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -437,13 +514,56 @@ export function KeyFeatures() {
   );
 }
 
+/* ── Opportunity Score ────────────────────────────────────────────────────── */
+
+const OPPORTUNITY_SCORE: OpportunityScore = {
+  value: 72,
+  factors: [
+    { label: "Buyer Demand", value: 78, description: "Illustrative — recent buyer activity for this example product." },
+    { label: "Supplier Strength", value: 66, description: "Illustrative — supplier consistency and shipment history." },
+    { label: "Shipment Activity", value: 74, description: "Illustrative — shipment frequency across the sample period." },
+    { label: "Price Stability", value: 61, description: "Illustrative — how steady unit pricing has been." },
+    { label: "Market Growth", value: 80, description: "Illustrative — trade-value trend across destination markets." },
+    { label: "Trade Value", value: 70, description: "Illustrative — total shipment value in the sample dataset." },
+  ],
+  rationale: [
+    "Illustrative composite — combines buyer, supplier, shipment, price and market signals into one indicator.",
+  ],
+};
+
+export function OpportunitySection() {
+  return (
+    <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
+      <Reveal>
+        <Eyebrow>Faster trade decisions</Eyebrow>
+        <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+          Opportunity Score for Faster Trade Decisions
+        </h2>
+        <p className="mt-3 text-muted">
+          Vaskodigama&apos;s Opportunity Score helps users quickly evaluate
+          product-market potential by combining multiple trade signals —
+          buyer activity, supplier consistency, shipment volume, trade value,
+          country demand, price movement, market growth and competitor
+          activity — into one decision-friendly indicator.
+        </p>
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
+          Illustrative example score <IllustrativeBadge />
+        </p>
+      </Reveal>
+      <Reveal delay={100}>
+        <OpportunityScoreCard score={OPPORTUNITY_SCORE} subject="Sample product example" />
+      </Reveal>
+    </div>
+  );
+}
+
 /* ── Use cases ────────────────────────────────────────────────────────────── */
 
 const USE_CASES: { icon: LucideIcon; title: string; body: string; signal: string }[] = [
   {
     icon: Briefcase,
     title: "Business Development Teams",
-    body: "Find new buyers, target high-demand markets and identify product expansion opportunities.",
+    body: "Find active buyers, target high-demand countries, and build export sales pipelines.",
     signal: "Buyer data",
   },
   {
@@ -453,22 +573,40 @@ const USE_CASES: { icon: LucideIcon; title: string; body: string; signal: string
     signal: "Supplier data",
   },
   {
+    icon: ArrowDownToLine,
+    title: "Importers",
+    body: "Track suppliers, compare origin countries, understand price trends and identify better sourcing opportunities.",
+    signal: "Import data",
+  },
+  {
+    icon: ArrowUpFromLine,
+    title: "Exporters",
+    body: "Find active buyers, evaluate destination markets and identify product demand across countries.",
+    signal: "Export data",
+  },
+  {
+    icon: Building2,
+    title: "Manufacturers",
+    body: "Understand where products are moving, which countries are buying, and where expansion opportunities exist.",
+    signal: "Trade data",
+  },
+  {
     icon: SearchIcon,
     title: "Market Research Teams",
-    body: "Analyse trade trends, competitor movement and product demand across geographies.",
+    body: "Analyse trade trends, competitor movement, product demand and country-wise activity.",
     signal: "Market data",
   },
   {
     icon: Truck,
-    title: "Export-Import Teams",
-    body: "Track shipment records, buyer-supplier movements and country-level trade flows.",
+    title: "Supply Chain Teams",
+    body: "Understand trade routes, origin-destination movement, supplier networks and shipment patterns.",
     signal: "Shipment data",
   },
   {
-    icon: Building2,
-    title: "Pharmaceutical Manufacturers",
-    body: "Understand global demand, supply gaps, active buyers and export opportunities for APIs, FDFs and KSMs.",
-    signal: "Trade data",
+    icon: LineChart,
+    title: "Consulting & Analytics Teams",
+    body: "Use structured trade data to support market studies, opportunity assessment and competitive intelligence projects.",
+    signal: "Structured data",
   },
 ];
 
@@ -478,14 +616,14 @@ export function UseCases() {
       <Reveal className="mx-auto max-w-2xl text-center">
         <Eyebrow>Who it&apos;s for</Eyebrow>
         <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          Built for teams that depend on pharma trade intelligence
+          Built for Teams That Depend on Trade Intelligence
         </h2>
       </Reveal>
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {USE_CASES.map((u, i) => {
           const Icon = u.icon;
           return (
-            <Reveal key={u.title} delay={i * 70}>
+            <Reveal key={u.title} delay={i * 60}>
               <div className="flex h-full flex-col rounded-xl border border-border bg-background p-5 shadow-xs">
                 <div className="flex items-center justify-between">
                   <span className="flex size-10 items-center justify-center rounded-lg bg-primary-soft text-primary">
@@ -506,11 +644,52 @@ export function UseCases() {
   );
 }
 
+/* ── From trade records to business decisions ────────────────────────────── */
+
+const DECISION_QUESTIONS = [
+  "Which country should we target?",
+  "Which buyer should we approach?",
+  "Which supplier should we evaluate?",
+  "Which product has rising demand?",
+  "Which route has better pricing?",
+  "Which competitor is active in this market?",
+  "Which HS chapter has stronger movement?",
+  "Which market has better opportunity?",
+];
+
+export function BusinessDecisions() {
+  return (
+    <>
+      <Reveal className="mx-auto max-w-2xl text-center">
+        <Eyebrow>Business impact</Eyebrow>
+        <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+          From Trade Records to Business Decisions
+        </h2>
+        <p className="mt-3 text-muted">
+          Vaskodigama isn&apos;t only a data platform — it helps teams make
+          faster commercial, sourcing, procurement, sales and market
+          expansion decisions.
+        </p>
+      </Reveal>
+      <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {DECISION_QUESTIONS.map((q, i) => (
+          <Reveal key={q} delay={i * 40}>
+            <div className="flex h-full items-start gap-2.5 rounded-xl border border-border bg-background p-4">
+              <HelpCircle className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
+              <p className="text-sm font-medium text-navy">{q}</p>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </>
+  );
+}
+
 /* ── Why Vaskodigama ─────────────────────────────────────────────────────── */
 
 const WHY_POINTS = [
-  "Pharma-specific trade intelligence, not a generic commodity tool",
-  "API, FDF and KSM focused search from one field",
+  "Global import-export intelligence, not a single-industry tool",
+  "Product, HS code and company search from one field",
   "Buyer and supplier discovery backed by shipment evidence",
   "Pricing and shipment-level analysis",
   "Country-wise import-export insight",
@@ -528,11 +707,11 @@ export function WhyVaskodigama() {
           Why Choose Vaskodigama?
         </h2>
         <p className="mt-3 text-muted">
-          Purpose-built for the way pharmaceutical trade actually moves — not
-          adapted from a generic logistics or commodity platform.
+          Purpose-built for the way global trade actually moves — not a
+          generic logistics or single-category commodity platform.
         </p>
-        <ButtonLink href="/solutions/pharmaceuticals" variant="outline" className="mt-6 rounded-full">
-          See the pharma solution <ArrowRight className="size-4" aria-hidden />
+        <ButtonLink href="/platform" variant="outline" className="mt-6 rounded-full">
+          See the platform <ArrowRight className="size-4" aria-hidden />
         </ButtonLink>
       </Reveal>
       <Reveal delay={100}>
@@ -598,7 +777,7 @@ function TradeRouteMap() {
         preserveAspectRatio="none"
         className="absolute inset-0 h-full w-full"
         role="img"
-        aria-label="Illustrative pharmaceutical trade routes between demonstration markets"
+        aria-label="Illustrative import-export trade routes between example markets"
       >
         <g fill="none" strokeLinecap="round">
           {TRADE_ROUTES.map(([from, to], i) => {
@@ -643,12 +822,13 @@ export function GlobalCoverage({ chips }: { chips: CoverageChip[] }) {
         <Reveal className="mx-auto max-w-2xl text-center">
           <Eyebrow>Global coverage</Eyebrow>
           <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-            Explore Pharma Trade Across Global Markets
+            Explore Import-Export Activity Across 40 Countries
           </h2>
           <p className="mt-3 text-muted">
-            Vaskodigama helps teams understand how pharmaceutical products move
-            across countries — who is buying, who is supplying, which markets
-            are active, and where opportunity is emerging.
+            Compare country-wise trade activity, identify active import and
+            export markets, study trade routes, evaluate buyer-supplier
+            networks, and understand where demand is emerging across global
+            markets.
           </p>
         </Reveal>
         <Reveal delay={80}>
@@ -666,7 +846,7 @@ export function GlobalCoverage({ chips }: { chips: CoverageChip[] }) {
           ))}
         </Reveal>
         <p className="mt-5 flex items-center justify-center gap-2 text-center text-xs text-muted">
-          Illustrative demonstration coverage.
+          Illustrative example coverage.
           <IllustrativeBadge />
         </p>
       </div>
@@ -677,7 +857,7 @@ export function GlobalCoverage({ chips }: { chips: CoverageChip[] }) {
 /* ── Final CTA ────────────────────────────────────────────────────────────── */
 
 const CTA_SUMMARY = [
-  "Search APIs, FDFs and KSMs",
+  "Search products, HS codes and companies",
   "Find buyers and suppliers",
   "Compare pricing",
   "Discover markets",
@@ -691,23 +871,23 @@ export function LandingFinalCta() {
       <div className="relative grid items-center gap-10 text-center lg:grid-cols-[1.2fr_0.8fr] lg:text-left">
         <div>
           <h2 className="text-3xl font-bold text-white sm:text-4xl">
-            Start discovering pharma trade{" "}
-            <span className="text-gradient-light">opportunities</span>
+            Start Exploring Global{" "}
+            <span className="text-gradient-light">Trade Opportunities</span>
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/75 lg:mx-0">
-            Search APIs, FDFs and KSMs, identify active buyers and suppliers,
-            compare pricing, track shipment records, and discover
-            high-potential markets from one structured intelligence platform.
+            Use Vaskodigama to discover buyers, suppliers, shipment records,
+            pricing trends, country demand and market opportunities across 40
+            countries and all 100 HS chapters.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
-            <ButtonLink href="/contact?industry=pharma" className="btn-gradient h-12 rounded-full px-7 text-base">
+            <ButtonLink href="/contact" className="btn-gradient h-12 rounded-full px-7 text-base">
               Request a Demo <ArrowRight className="size-4" aria-hidden />
             </ButtonLink>
             <Link
-              href="/explore?industry=pharmaceuticals"
+              href="#global-coverage"
               className="inline-flex h-12 items-center rounded-full border border-white/30 px-7 text-base font-semibold text-white hover:bg-white/10"
             >
-              Explore Demo
+              Explore Data Coverage
             </Link>
           </div>
         </div>
@@ -727,7 +907,7 @@ export function LandingFinalCta() {
 /* ── Search-to-insight journey ───────────────────────────────────────────── */
 
 const JOURNEY_STEPS: { icon: LucideIcon; label: string; body: string }[] = [
-  { icon: SearchIcon, label: "Search product", body: "Enter an API, FDF or KSM" },
+  { icon: SearchIcon, label: "Search product", body: "Enter a product, HS code or company" },
   { icon: ClipboardList, label: "View trade records", body: "Structured shipment history" },
   { icon: Users, label: "Identify buyers/suppliers", body: "See who's active, right now" },
   { icon: DollarSign, label: "Compare pricing", body: "Benchmark shipment-level value" },
@@ -810,9 +990,9 @@ export function BuyerSupplierNetwork() {
       {/* Centre node */}
       <div className="absolute left-1/2 top-1/2 flex w-28 -translate-x-1/2 -translate-y-1/2 flex-col items-center rounded-2xl border border-border bg-background p-3 text-center shadow-md">
         <span className="flex size-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
-          <FlaskConical className="size-4.5" aria-hidden />
+          <Package className="size-4.5" aria-hidden />
         </span>
-        <p className="mt-1.5 text-xs font-semibold text-navy">Metformin API</p>
+        <p className="mt-1.5 text-xs font-semibold text-navy">Solar Panels</p>
       </div>
 
       {/* Connected nodes */}

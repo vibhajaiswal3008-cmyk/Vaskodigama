@@ -156,7 +156,7 @@ export function SearchPreviewDashboard({
           <p className="text-xs text-muted">
             Not raw data — structured, decision-ready intelligence.
           </p>
-          <ButtonLink href="/explore?industry=pharmaceuticals" size="sm">
+          <ButtonLink href="/explore" size="sm">
             Open full result <ArrowUpRight className="size-4" aria-hidden />
           </ButtonLink>
         </div>

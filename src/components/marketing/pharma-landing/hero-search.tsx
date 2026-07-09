@@ -2,44 +2,45 @@
 
 import * as React from "react";
 import { useRouter } from "next/navigation";
-import { Search, FlaskConical, Pill, Beaker } from "lucide-react";
+import { Search, Package, Hash, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
   {
-    id: "api",
-    label: "APIs",
-    icon: FlaskConical,
-    placeholder: "Search API e.g. Metformin",
-    example: "e.g. Metformin, Paracetamol, Amoxicillin",
+    id: "product",
+    label: "Product",
+    icon: Package,
+    placeholder: "Search a product e.g. Solar Panels",
+    example: "e.g. Solar Panels, Basmati Rice, Machinery Parts",
   },
   {
-    id: "fdf",
-    label: "FDFs",
-    icon: Pill,
-    placeholder: "Search FDF e.g. Paracetamol Tablet",
-    example: "e.g. Paracetamol Tablet, Amoxicillin Capsule",
+    id: "hs-code",
+    label: "HS Code",
+    icon: Hash,
+    placeholder: "Search an HS code e.g. 8541.40",
+    example: "e.g. 8541.40, 1006.30, 7326.90",
   },
   {
-    id: "ksm",
-    label: "KSMs",
-    icon: Beaker,
-    placeholder: "Search KSM e.g. 4-Aminophenol",
-    example: "e.g. 4-Aminophenol, Salicylic Acid",
+    id: "company",
+    label: "Company",
+    icon: Building2,
+    placeholder: "Search a company e.g. Northstar Industrial",
+    example: "e.g. importer, exporter, buyer or supplier name",
   },
 ] as const;
 
 type TabId = (typeof TABS)[number]["id"];
 
 /**
- * Hero search bar for the pharma landing draft — APIs / FDFs / KSMs tabs.
- * Submits to /explore, this codebase's real search & results route, with a
- * `segment` param carrying the tab. Swap the router.push below for a call
- * into src/lib/data (tradeData.runSearch) if this becomes a live query.
+ * Hero search bar for the landing page — Product / HS Code / Company tabs,
+ * matching the real Explore workspace's search modes. Submits to /explore,
+ * this codebase's real search & results route. Swap the router.push below
+ * for a call into src/lib/data (tradeData.runSearch) if this becomes a
+ * live query.
  */
 export function PharmaLandingHeroSearch() {
   const router = useRouter();
-  const [tab, setTab] = React.useState<TabId>("api");
+  const [tab, setTab] = React.useState<TabId>("product");
   const [query, setQuery] = React.useState("");
 
   const active = TABS.find((t) => t.id === tab)!;
@@ -48,9 +49,7 @@ export function PharmaLandingHeroSearch() {
     e.preventDefault();
     const term = query.trim();
     if (!term) return;
-    router.push(
-      `/explore?q=${encodeURIComponent(term)}&type=product&industry=pharmaceuticals&segment=${tab}`,
-    );
+    router.push(`/explore?q=${encodeURIComponent(term)}&type=${tab}`);
   }
 
   return (
@@ -58,11 +57,11 @@ export function PharmaLandingHeroSearch() {
       onSubmit={handleSubmit}
       className="w-full rounded-2xl border border-border bg-background p-3 shadow-md sm:p-4"
       role="search"
-      aria-label="Search pharmaceutical trade intelligence"
+      aria-label="Search global trade intelligence"
     >
       <div
         role="tablist"
-        aria-label="Product category"
+        aria-label="Search mode"
         className="mb-3 flex w-fit gap-1 rounded-lg bg-surface p-1"
       >
         {TABS.map((t) => {

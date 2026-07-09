@@ -20,12 +20,14 @@ export function Footer() {
           <div className="max-w-xs">
             <Logo />
             <p className="mt-3 text-sm text-muted">
-              Trade intelligence that helps you decide what to do next — discover
-              markets, evaluate buyers and suppliers, and turn shipment records
-              into clear business decisions.
+              {isPharmaLanding
+                ? "Trade intelligence that helps businesses discover markets, evaluate buyers and suppliers, compare pricing, and turn shipment records into clear business decisions."
+                : "Trade intelligence that helps you decide what to do next — discover markets, evaluate buyers and suppliers, and turn shipment records into clear business decisions."}
             </p>
             <p className="mt-4 text-xs text-muted">
-              Demonstration build. All trade data shown is illustrative.
+              {isPharmaLanding
+                ? "Sample data shown for illustration."
+                : "Demonstration build. All trade data shown is illustrative."}
             </p>
           </div>
 
@@ -52,8 +54,9 @@ export function Footer() {
 
         <div className="mt-10 flex flex-col items-start justify-between gap-3 border-t border-border pt-6 text-sm text-muted sm:flex-row sm:items-center">
           <p>
-            © {year} {siteConfig.name}. Illustrative demonstration — not
-            connected to a live customs data source.
+            {isPharmaLanding
+              ? `© ${year} ${siteConfig.name}. Sample data shown for illustration.`
+              : `© ${year} ${siteConfig.name}. Illustrative demonstration — not connected to a live customs data source.`}
           </p>
           <div className="flex items-center gap-4">
             <Link href="/privacy" className="hover:text-primary">

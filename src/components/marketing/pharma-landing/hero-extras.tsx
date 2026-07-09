@@ -3,12 +3,12 @@ import { ArrowRight } from "lucide-react";
 
 /**
  * Slim top-of-page announcement strip, above the header. Static link, no
- * dismiss state — kept intentionally simple for a draft/demo route.
+ * dismiss state — kept intentionally simple for this route.
  */
 export function AnnouncementStrip() {
   return (
     <div className="bg-navy-deep px-4 py-2 text-center text-xs font-medium text-white/80">
-      Explore trade intelligence across our demonstration coverage{" "}
+      Explore import-export intelligence across 40 countries{" "}
       <Link href="#global-coverage" className="inline-flex items-center gap-1 font-semibold text-white hover:underline">
         View country coverage <ArrowRight className="size-3" aria-hidden />
       </Link>
@@ -17,19 +17,20 @@ export function AnnouncementStrip() {
 }
 
 const CHIPS = [
-  { label: "Metformin API", className: "left-2 top-2" },
-  { label: "Paracetamol FDF", className: "right-2 top-10" },
-  { label: "KSM Suppliers", className: "left-6 bottom-10" },
-  { label: "Shipment Data", className: "right-6 bottom-0" },
+  { label: "Solar Panels", className: "left-2 top-2" },
+  { label: "HS Code 8541", className: "right-2 top-10" },
+  { label: "Active Suppliers", className: "left-6 bottom-10" },
+  { label: "Shipment Records", className: "right-6 bottom-0" },
 ] as const;
 
 /**
  * Decorative floating search-suggestion chips around the hero search card.
- * Purely illustrative labels (real pharma product names). Rendered in a
- * wide (68rem) box centred on the same point as the (much narrower,
- * max-w-2xl) search card, so chips sit clear in the margin either side of
- * it instead of overlapping it. Only shown at `2xl`+, where that margin
- * actually exists on typical viewports.
+ * Illustrative, product-agnostic labels — shown to signal search breadth,
+ * not to imply the platform is limited to one category. Rendered in a wide
+ * (68rem) box centred on the same point as the (much narrower, max-w-2xl)
+ * search card, so chips sit clear in the margin either side of it instead
+ * of overlapping it. Only shown at `2xl`+, where that margin actually
+ * exists on typical viewports.
  */
 export function HeroFloatingChips() {
   return (
