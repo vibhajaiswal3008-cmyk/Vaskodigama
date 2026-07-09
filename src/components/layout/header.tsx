@@ -70,19 +70,22 @@ export function Header() {
       <nav
         aria-label="Primary"
         className={cn(
-          "mx-auto flex max-w-6xl items-center gap-4 px-4 transition-[padding] sm:px-6",
+          "mx-auto flex items-center gap-3 px-4 transition-[padding] sm:px-6",
+          isPharmaLanding ? "max-w-[1400px]" : "max-w-6xl",
           scrolled ? "py-2.5" : "py-3.5",
         )}
       >
-        <Logo />
+        <div className="shrink-0">
+          <Logo />
+        </div>
 
         {isPharmaLanding ? (
-          <ul className="ml-4 hidden items-center gap-1 lg:flex">
+          <ul className={cn("hidden flex-1 items-center justify-center gap-0.5", "xl:flex")}>
             {PHARMA_LANDING_NAV.map((item) => (
-              <li key={item.label}>
+              <li key={item.label} className="shrink-0">
                 <a
                   href={item.href}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:bg-surface hover:text-navy"
+                  className="whitespace-nowrap rounded-md px-2.5 py-2 text-[13px] font-medium text-muted-strong hover:bg-surface hover:text-navy"
                 >
                   {item.label}
                 </a>
@@ -90,7 +93,7 @@ export function Header() {
             ))}
           </ul>
         ) : (
-          <ul className="ml-4 hidden items-center gap-1 lg:flex">
+          <ul className="ml-4 hidden flex-1 items-center gap-1 lg:flex">
             {mainNav.map((item) =>
               item.children ? (
                 <DropdownNav key={item.label} item={item} pathname={pathname} />
@@ -99,7 +102,7 @@ export function Header() {
                   <Link
                     href={item.href}
                     className={cn(
-                      "rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:bg-surface hover:text-navy",
+                      "whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:bg-surface hover:text-navy",
                       samePath(pathname, item.href) && "text-primary",
                     )}
                   >
@@ -111,7 +114,7 @@ export function Header() {
           </ul>
         )}
 
-        <div className="ml-auto hidden items-center gap-2 lg:flex">
+        <div className={cn("hidden shrink-0 items-center gap-2", isPharmaLanding ? "xl:flex" : "lg:flex")}>
           <Link
             href="/login"
             className="whitespace-nowrap rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:text-navy"
@@ -129,7 +132,10 @@ export function Header() {
         <button
           ref={toggleRef}
           type="button"
-          className="ml-auto inline-flex items-center justify-center rounded-md p-2 text-navy hover:bg-surface lg:hidden"
+          className={cn(
+            "inline-flex shrink-0 items-center justify-center rounded-md p-2 text-navy hover:bg-surface",
+            isPharmaLanding ? "xl:hidden" : "lg:hidden",
+          )}
           aria-expanded={mobileOpen}
           aria-controls="mobile-menu"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
@@ -239,7 +245,7 @@ function MobileMenu({
         // Close the menu when any link inside is activated.
         if ((e.target as HTMLElement).closest("a")) onNavigate();
       }}
-      className="border-t border-border bg-background lg:hidden"
+      className={cn("border-t border-border bg-background", useAnchorNav ? "xl:hidden" : "lg:hidden")}
     >
       <div className="mx-auto max-w-6xl space-y-1 px-4 py-4 sm:px-6">
         {useAnchorNav
