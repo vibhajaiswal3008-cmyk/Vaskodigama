@@ -36,7 +36,6 @@ import {
   Gem,
   Settings2,
   ShoppingBag,
-  HelpCircle,
   Boxes,
 } from "lucide-react";
 import { Eyebrow } from "@/components/ui/misc";
@@ -44,8 +43,6 @@ import { ButtonLink } from "@/components/ui/button";
 import { Reveal } from "@/components/shared/reveal";
 import { IllustrativeBadge } from "@/components/shared/illustrative";
 import { Flag } from "@/components/shared/flag";
-import { OpportunityScoreCard } from "@/components/opportunity/opportunity-score";
-import type { OpportunityScore } from "@/types";
 import { cn } from "@/lib/utils";
 
 /* ── Data coverage ────────────────────────────────────────────────────────── */
@@ -60,14 +57,14 @@ interface CoverageCard {
 const DATA_COVERAGE_CARDS: CoverageCard[] = [
   {
     icon: Globe2,
-    value: "40",
+    value: "40+",
     title: "Countries covered",
     body: "Import and export activity spanning major global trade markets.",
   },
   {
     icon: Layers,
-    value: "100",
-    title: "HS chapters",
+    value: "All",
+    title: "HSN chapters",
     body: "Full harmonised-system coverage, from raw materials to finished goods.",
   },
   {
@@ -138,30 +135,7 @@ export function DataCoverage() {
   );
 }
 
-/* ── Problem → Solution ──────────────────────────────────────────────────── */
-
-const PROBLEM_CARDS: { icon: LucideIcon; title: string; body: string }[] = [
-  {
-    icon: Users,
-    title: "Identify Active Buyers",
-    body: "Surface importers already showing demand for your product, instead of starting business development from a cold list.",
-  },
-  {
-    icon: Factory,
-    title: "Track Reliable Suppliers",
-    body: "Compare exporters and manufacturers by visible shipment history so sourcing decisions rest on evidence, not a single quote.",
-  },
-  {
-    icon: LineChart,
-    title: "Analyze Pricing Trends",
-    body: "Review shipment-level values across routes and periods to sanity-check quotes and negotiate from an informed position.",
-  },
-  {
-    icon: Globe2,
-    title: "Discover High-Potential Markets",
-    body: "Rank destination and origin countries by trade activity to prioritise where a product or category is worth pursuing next.",
-  },
-];
+/* ── Raw data → decision-ready artifact ──────────────────────────────────── */
 
 /* Raw shipment record — one illustrative example, used consistently across
    this page's sample artifacts. */
@@ -204,14 +178,16 @@ function StageConnector() {
 
 /**
  * The section's main visual: raw shipment record → Vaskodigama's
- * intelligence layer → structured decision output. Built from cards, chips
+ * processing layer → structured decision output. Built from cards, chips
  * and connectors only (no charting library) — the point is legibility, not
- * decoration.
+ * decoration. The centre stage is deliberately the visual anchor (larger,
+ * glowing badge, no text label) so it reads as the "engine" between the two
+ * flanking cards rather than a plain labelled box.
  */
 function DataTransformArtifact() {
   return (
     <div className="rounded-[28px] border border-border bg-surface p-5 sm:p-8">
-      <div className="flex flex-col items-stretch lg:flex-row lg:items-center">
+      <div className="flex flex-col items-stretch lg:flex-row lg:items-stretch">
         {/* Stage 1 — raw shipment data */}
         <div className="flex-1 rounded-2xl border border-border bg-background p-5 shadow-xs">
           <div className="flex items-center gap-2">
@@ -235,30 +211,26 @@ function DataTransformArtifact() {
 
         <StageConnector />
 
-        {/* Stage 2 — Vaskodigama intelligence layer */}
-        <div className="relative flex-1 overflow-hidden rounded-2xl bg-navy p-5 shadow-md lg:flex-[1.15]">
+        {/* Stage 2 — processing layer (visual anchor, no text label) */}
+        <div className="relative flex flex-1 flex-col items-center justify-center overflow-hidden rounded-2xl bg-navy px-5 py-8 shadow-md lg:flex-[1.3]">
           <div className="bg-route-grid absolute inset-0 opacity-40" aria-hidden />
-          <div className="relative">
-            <div className="flex items-center gap-2">
-              <span className="flex size-8 items-center justify-center rounded-lg bg-white/10 text-[var(--chart-2)]">
-                <Cpu className="size-4" aria-hidden />
-              </span>
-              <p className="text-sm font-semibold text-white">Vaskodigama Intelligence Layer</p>
-            </div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              {INTELLIGENCE_CHIPS.map((c) => {
-                const Icon = c.icon;
-                return (
-                  <span
-                    key={c.label}
-                    className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-2 text-[11px] font-medium text-white/90"
-                  >
-                    <Icon className="size-3.5 shrink-0 text-[var(--chart-2)]" aria-hidden />
-                    {c.label}
-                  </span>
-                );
-              })}
-            </div>
+          <div className="animate-float absolute size-36 rounded-full bg-[var(--chart-2)]/20 blur-3xl" aria-hidden />
+          <span className="relative flex size-16 items-center justify-center rounded-2xl border border-white/20 bg-white/10 text-[var(--chart-2)] shadow-lg">
+            <Cpu className="size-7" aria-hidden />
+          </span>
+          <div className="relative mt-6 grid w-full grid-cols-2 gap-2">
+            {INTELLIGENCE_CHIPS.map((c) => {
+              const Icon = c.icon;
+              return (
+                <span
+                  key={c.label}
+                  className="flex items-center gap-1.5 rounded-lg border border-white/15 bg-white/5 px-2.5 py-2 text-[11px] font-medium text-white/90"
+                >
+                  <Icon className="size-3.5 shrink-0 text-[var(--chart-2)]" aria-hidden />
+                  {c.label}
+                </span>
+              );
+            })}
           </div>
         </div>
 
@@ -307,7 +279,7 @@ export function ProblemSolution() {
       <Reveal className="mx-auto max-w-2xl text-center">
         <Eyebrow>Why Vaskodigama</Eyebrow>
         <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          Raw Trade Data Is Complex. Vaskodigama Makes It Decision-Ready.
+          Vaskodigama Makes It Decision-Ready.
         </h2>
         <p className="mt-3 text-muted">
           Import-export data is often scattered, unstructured and difficult to
@@ -321,23 +293,6 @@ export function ProblemSolution() {
       <Reveal delay={80} className="mt-10">
         <DataTransformArtifact />
       </Reveal>
-
-      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {PROBLEM_CARDS.map((c, i) => {
-          const Icon = c.icon;
-          return (
-            <Reveal key={c.title} delay={i * 70}>
-              <div className="tile-glow flex h-full flex-col rounded-xl border border-border bg-background p-5">
-                <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
-                  <Icon className="size-5" aria-hidden />
-                </span>
-                <h3 className="mt-4 font-semibold text-navy">{c.title}</h3>
-                <p className="mt-1.5 flex-1 text-sm text-muted">{c.body}</p>
-              </div>
-            </Reveal>
-          );
-        })}
-      </div>
     </>
   );
 }
@@ -367,15 +322,15 @@ export function HsChapterCoverage() {
   return (
     <>
       <Reveal className="mx-auto max-w-2xl text-center">
-        <Eyebrow>HS chapter coverage</Eyebrow>
+        <Eyebrow>HSN chapter coverage</Eyebrow>
         <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          Coverage Across All 100 HS Chapters
+          Coverage Across All HSN Chapters
         </h2>
         <p className="mt-3 text-muted">
           From agriculture, chemicals, plastics, textiles and metals to
           machinery, electronics, pharma, consumer goods and industrial
           materials — Vaskodigama supports import-export intelligence across
-          all 100 HS chapters.
+          all HSN chapters.
         </p>
       </Reveal>
       <div className="mt-10 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
@@ -514,49 +469,6 @@ export function KeyFeatures() {
   );
 }
 
-/* ── Opportunity Score ────────────────────────────────────────────────────── */
-
-const OPPORTUNITY_SCORE: OpportunityScore = {
-  value: 72,
-  factors: [
-    { label: "Buyer Demand", value: 78, description: "Illustrative — recent buyer activity for this example product." },
-    { label: "Supplier Strength", value: 66, description: "Illustrative — supplier consistency and shipment history." },
-    { label: "Shipment Activity", value: 74, description: "Illustrative — shipment frequency across the sample period." },
-    { label: "Price Stability", value: 61, description: "Illustrative — how steady unit pricing has been." },
-    { label: "Market Growth", value: 80, description: "Illustrative — trade-value trend across destination markets." },
-    { label: "Trade Value", value: 70, description: "Illustrative — total shipment value in the sample dataset." },
-  ],
-  rationale: [
-    "Illustrative composite — combines buyer, supplier, shipment, price and market signals into one indicator.",
-  ],
-};
-
-export function OpportunitySection() {
-  return (
-    <div className="grid items-center gap-10 lg:grid-cols-[0.9fr_1.1fr]">
-      <Reveal>
-        <Eyebrow>Faster trade decisions</Eyebrow>
-        <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          Opportunity Score for Faster Trade Decisions
-        </h2>
-        <p className="mt-3 text-muted">
-          Vaskodigama&apos;s Opportunity Score helps users quickly evaluate
-          product-market potential by combining multiple trade signals —
-          buyer activity, supplier consistency, shipment volume, trade value,
-          country demand, price movement, market growth and competitor
-          activity — into one decision-friendly indicator.
-        </p>
-        <p className="mt-3 flex items-center gap-1.5 text-xs text-muted">
-          Illustrative example score <IllustrativeBadge />
-        </p>
-      </Reveal>
-      <Reveal delay={100}>
-        <OpportunityScoreCard score={OPPORTUNITY_SCORE} subject="Sample product example" />
-      </Reveal>
-    </div>
-  );
-}
-
 /* ── Use cases ────────────────────────────────────────────────────────────── */
 
 const USE_CASES: { icon: LucideIcon; title: string; body: string; signal: string }[] = [
@@ -644,90 +556,144 @@ export function UseCases() {
   );
 }
 
-/* ── From trade records to business decisions ────────────────────────────── */
+/* ── Why Vaskodigama (merged differentiation section) ────────────────────── */
 
-const DECISION_QUESTIONS = [
-  "Which country should we target?",
-  "Which buyer should we approach?",
-  "Which supplier should we evaluate?",
-  "Which product has rising demand?",
-  "Which route has better pricing?",
-  "Which competitor is active in this market?",
-  "Which HS chapter has stronger movement?",
-  "Which market has better opportunity?",
-];
+type WhyVisual =
+  | { kind: "stat" }
+  | { kind: "network" }
+  | { kind: "bars" }
+  | { kind: "roles" }
+  | { kind: "checklist" };
 
-export function BusinessDecisions() {
-  return (
-    <>
-      <Reveal className="mx-auto max-w-2xl text-center">
-        <Eyebrow>Business impact</Eyebrow>
-        <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          From Trade Records to Business Decisions
-        </h2>
-        <p className="mt-3 text-muted">
-          Vaskodigama isn&apos;t only a data platform — it helps teams make
-          faster commercial, sourcing, procurement, sales and market
-          expansion decisions.
-        </p>
-      </Reveal>
-      <div className="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {DECISION_QUESTIONS.map((q, i) => (
-          <Reveal key={q} delay={i * 40}>
-            <div className="flex h-full items-start gap-2.5 rounded-xl border border-border bg-background p-4">
-              <HelpCircle className="mt-0.5 size-4 shrink-0 text-primary" aria-hidden />
-              <p className="text-sm font-medium text-navy">{q}</p>
-            </div>
-          </Reveal>
+function WhyModuleVisual({ visual }: { visual: WhyVisual }) {
+  if (visual.kind === "stat") {
+    return (
+      <div className="mt-4 flex gap-2" aria-hidden>
+        <span className="flex-1 rounded-lg bg-surface-2 px-2 py-1.5 text-center text-xs font-bold text-navy">40+</span>
+        <span className="flex-1 rounded-lg bg-surface-2 px-2 py-1.5 text-center text-xs font-bold text-navy">All HSN</span>
+      </div>
+    );
+  }
+  if (visual.kind === "network") {
+    return (
+      <svg viewBox="0 0 120 40" className="mt-4 h-10 w-full" aria-hidden>
+        <g stroke="var(--chart-2)" strokeOpacity="0.5" strokeWidth="1" strokeDasharray="2 3">
+          <line x1="60" y1="20" x2="16" y2="8" />
+          <line x1="60" y1="20" x2="16" y2="32" />
+          <line x1="60" y1="20" x2="104" y2="8" />
+          <line x1="60" y1="20" x2="104" y2="32" />
+        </g>
+        <circle cx="60" cy="20" r="6" fill="var(--primary)" />
+        <circle cx="16" cy="8" r="3.5" fill="var(--chart-2)" />
+        <circle cx="16" cy="32" r="3.5" fill="var(--chart-2)" />
+        <circle cx="104" cy="8" r="3.5" fill="var(--chart-2)" />
+        <circle cx="104" cy="32" r="3.5" fill="var(--chart-2)" />
+      </svg>
+    );
+  }
+  if (visual.kind === "bars") {
+    return (
+      <div className="mt-4 flex h-8 items-end gap-1" aria-hidden>
+        {[35, 55, 45, 70, 60, 80].map((v, i) => (
+          <span key={i} className="w-full rounded-sm bg-primary/25" style={{ height: `${v}%` }} />
         ))}
       </div>
-    </>
+    );
+  }
+  if (visual.kind === "roles") {
+    const icons = [Briefcase, ClipboardList, SearchIcon];
+    return (
+      <div className="mt-4 flex gap-2" aria-hidden>
+        {icons.map((Icon, i) => (
+          <span key={i} className="flex size-8 items-center justify-center rounded-full bg-surface-2 text-primary">
+            <Icon className="size-4" aria-hidden />
+          </span>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <ul className="mt-4 space-y-1.5" aria-hidden>
+      {["Target market", "Approach buyer", "Evaluate supplier"].map((t) => (
+        <li key={t} className="flex items-center gap-1.5 text-[11px] font-medium text-muted-strong">
+          <Check className="size-3.5 shrink-0 text-success" aria-hidden />
+          {t}
+        </li>
+      ))}
+    </ul>
   );
 }
 
-/* ── Why Vaskodigama ─────────────────────────────────────────────────────── */
-
-const WHY_POINTS = [
-  "Global import-export intelligence, not a single-industry tool",
-  "Product, HS code and company search from one field",
-  "Buyer and supplier discovery backed by shipment evidence",
-  "Pricing and shipment-level analysis",
-  "Country-wise import-export insight",
-  "Structured, decision-ready data instead of raw records",
-  "Faster business decisions for sourcing and sales",
-  "Useful across sourcing, sales, procurement and competitive intelligence",
+const WHY_MODULES: { icon: LucideIcon; title: string; body: string; visual: WhyVisual }[] = [
+  {
+    icon: Globe2,
+    title: "Coverage at a Glance",
+    body: "Supports trade analysis across all HSN chapters and 40+ countries — useful across industries, product categories and global markets.",
+    visual: { kind: "stat" },
+  },
+  {
+    icon: Users,
+    title: "Buyer & Supplier Discovery",
+    body: "Identifies active buyers, importers, exporters and suppliers — backed by shipment evidence, not unverified lists or assumptions.",
+    visual: { kind: "network" },
+  },
+  {
+    icon: LineChart,
+    title: "Pricing & Shipment Intelligence",
+    body: "Analyses product-wise demand, shipment volume, trade value and pricing movement at the route level.",
+    visual: { kind: "bars" },
+  },
+  {
+    icon: Briefcase,
+    title: "Built for Business Teams",
+    body: "Supports procurement sourcing comparisons, business development pipelines, and market research and strategy tracking.",
+    visual: { kind: "roles" },
+  },
+  {
+    icon: Target,
+    title: "Decision-Ready Output",
+    body: "Turns raw trade data into clear actions — which market to target, which buyer to approach, and which opportunity to prioritise.",
+    visual: { kind: "checklist" },
+  },
 ];
 
 export function WhyVaskodigama() {
   return (
-    <div className="grid items-center gap-10 lg:grid-cols-[0.8fr_1.2fr]">
-      <Reveal>
+    <>
+      <Reveal className="mx-auto max-w-2xl text-center">
         <Eyebrow>Why choose us</Eyebrow>
         <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-          Why Choose Vaskodigama?
+          Why Vaskodigama?
         </h2>
         <p className="mt-3 text-muted">
-          Purpose-built for the way global trade actually moves — not a
-          generic logistics or single-category commodity platform.
+          Converts scattered import-export records into structured,
+          decision-ready trade intelligence — purpose-built for the way
+          global trade actually moves, not a generic logistics tool.
         </p>
-        <ButtonLink href="/platform" variant="outline" className="mt-6 rounded-full">
+      </Reveal>
+      <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {WHY_MODULES.map((m, i) => {
+          const Icon = m.icon;
+          return (
+            <Reveal key={m.title} delay={i * 60}>
+              <div className="tile-glow flex h-full flex-col rounded-xl border border-border bg-background p-5">
+                <span className="flex size-11 items-center justify-center rounded-xl bg-primary-soft text-primary">
+                  <Icon className="size-5" aria-hidden />
+                </span>
+                <h3 className="mt-4 font-semibold text-navy">{m.title}</h3>
+                <p className="mt-1.5 flex-1 text-sm text-muted">{m.body}</p>
+                <WhyModuleVisual visual={m.visual} />
+              </div>
+            </Reveal>
+          );
+        })}
+      </div>
+      <Reveal delay={300} className="mt-8 text-center">
+        <ButtonLink href="/platform" variant="outline" className="rounded-full">
           See the platform <ArrowRight className="size-4" aria-hidden />
         </ButtonLink>
       </Reveal>
-      <Reveal delay={100}>
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {WHY_POINTS.map((p) => (
-            <li
-              key={p}
-              className="flex items-start gap-2.5 rounded-lg border border-border bg-background p-3.5 text-sm text-navy"
-            >
-              <Check className="mt-0.5 size-4 shrink-0 text-success" aria-hidden />
-              {p}
-            </li>
-          ))}
-        </ul>
-      </Reveal>
-    </div>
+    </>
   );
 }
 
@@ -771,7 +737,7 @@ const TRADE_ROUTES: [string, string][] = [
 function TradeRouteMap() {
   const nodeByCode = Object.fromEntries(ROUTE_NODES.map((n) => [n.code, n]));
   return (
-    <div className="relative mx-auto mt-10 h-[220px] w-full max-w-3xl sm:h-[260px]">
+    <div className="relative h-[220px] w-full sm:h-[260px]">
       <svg
         viewBox="0 0 100 100"
         preserveAspectRatio="none"
@@ -814,15 +780,56 @@ function TradeRouteMap() {
   );
 }
 
+interface CoverageFeature {
+  icon: LucideIcon;
+  title: string;
+  body: string;
+}
+
+const COVERAGE_FEATURES: CoverageFeature[] = [
+  {
+    icon: ArrowDownToLine,
+    title: "Import Market Coverage",
+    body: "Identify countries actively importing specific products and HSN categories.",
+  },
+  {
+    icon: ArrowUpFromLine,
+    title: "Export Market Coverage",
+    body: "Understand origin countries, exporting markets and supplier-side movement.",
+  },
+  {
+    icon: Users,
+    title: "Buyer & Importer Mapping",
+    body: "Discover active buyers, importers and company-level trade connections.",
+  },
+  {
+    icon: Factory,
+    title: "Supplier & Exporter Mapping",
+    body: "Track suppliers, exporters and origin-side trading companies.",
+  },
+  {
+    icon: Truck,
+    title: "Origin-Destination Trade Routes",
+    body: "Visualise how products move between countries through trade lanes.",
+  },
+];
+
+/* Illustrative shipment rows — broad trade examples, not tied to one industry. */
+const SHIPMENT_ROWS = [
+  { product: "Basmati Rice", hs: "1006.30", origin: "IN", destination: "GB", qty: "4.2K kg", value: "$18,600" },
+  { product: "Solar Panels", hs: "8541.40", origin: "CN", destination: "DE", qty: "1.8K units", value: "$52,300" },
+  { product: "Copper Wire", hs: "7408.11", origin: "CN", destination: "US", qty: "6.5K kg", value: "$31,900" },
+];
+
 export function GlobalCoverage({ chips }: { chips: CoverageChip[] }) {
   return (
     <div id="global-coverage" className="surface-hero-light relative overflow-hidden rounded-[28px] border border-border px-6 py-14 sm:px-12">
       <div className="bg-route-grid-light absolute inset-0 opacity-70" aria-hidden />
       <div className="relative">
         <Reveal className="mx-auto max-w-2xl text-center">
-          <Eyebrow>Global coverage</Eyebrow>
+          <Eyebrow>Global coverage · All HSN chapters</Eyebrow>
           <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-            Explore Import-Export Activity Across 40 Countries
+            Explore Import-Export Activity Across 40+ Countries
           </h2>
           <p className="mt-3 text-muted">
             Compare country-wise trade activity, identify active import and
@@ -831,9 +838,92 @@ export function GlobalCoverage({ chips }: { chips: CoverageChip[] }) {
             markets.
           </p>
         </Reveal>
-        <Reveal delay={80}>
-          <TradeRouteMap />
+
+        {/* Stat stack + route map */}
+        <Reveal delay={80} className="mt-9 grid gap-4 lg:grid-cols-[180px_1fr]">
+          <div className="flex flex-row gap-4 lg:flex-col">
+            <div className="flex-1 rounded-xl border border-border bg-background p-4">
+              <Globe2 className="size-5 text-primary" aria-hidden />
+              <p className="mt-2 text-2xl font-extrabold text-navy">40+</p>
+              <p className="text-xs text-muted">Countries</p>
+            </div>
+            <div className="flex-1 rounded-xl border border-border bg-background p-4">
+              <Layers className="size-5 text-primary" aria-hidden />
+              <p className="mt-2 text-2xl font-extrabold text-navy">All</p>
+              <p className="text-xs text-muted">HSN chapters</p>
+            </div>
+          </div>
+          <div className="rounded-xl border border-border bg-background p-3">
+            <TradeRouteMap />
+          </div>
         </Reveal>
+
+        {/* Coverage feature cards */}
+        <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {COVERAGE_FEATURES.map((f, i) => {
+            const Icon = f.icon;
+            return (
+              <Reveal key={f.title} delay={i * 50}>
+                <div className="flex h-full flex-col rounded-xl border border-border bg-background p-4">
+                  <span className="flex size-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                    <Icon className="size-4.5" aria-hidden />
+                  </span>
+                  <h3 className="mt-3 text-sm font-semibold text-navy">{f.title}</h3>
+                  <p className="mt-1 flex-1 text-xs text-muted">{f.body}</p>
+                </div>
+              </Reveal>
+            );
+          })}
+
+          {/* Shipment-level intelligence — spans full width, includes mini table */}
+          <Reveal delay={COVERAGE_FEATURES.length * 50} className="sm:col-span-2 lg:col-span-3">
+            <div className="rounded-xl border border-border bg-background p-4">
+              <div className="flex items-center gap-2">
+                <span className="flex size-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
+                  <Ship className="size-4.5" aria-hidden />
+                </span>
+                <div>
+                  <h3 className="text-sm font-semibold text-navy">Shipment-Level Intelligence</h3>
+                  <p className="text-xs text-muted">Quantity, value, price, product and company detail behind every trade.</p>
+                </div>
+              </div>
+              <div className="mt-3 overflow-x-auto">
+                <table className="w-full min-w-[480px] border-collapse text-sm">
+                  <thead>
+                    <tr className="border-b border-border text-left text-xs text-muted">
+                      <th className="py-1.5 pr-3 font-medium">Product</th>
+                      <th className="py-1.5 pr-3 font-medium">HSN code</th>
+                      <th className="py-1.5 pr-3 font-medium">Route</th>
+                      <th className="py-1.5 pr-3 font-medium">Qty</th>
+                      <th className="py-1.5 text-right font-medium">Value</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-border">
+                    {SHIPMENT_ROWS.map((r) => (
+                      <tr key={r.product} className="text-navy">
+                        <td className="py-1.5 pr-3 text-xs font-medium">{r.product}</td>
+                        <td className="py-1.5 pr-3 text-xs text-muted">{r.hs}</td>
+                        <td className="py-1.5 pr-3">
+                          <span className="flex items-center gap-1 whitespace-nowrap text-xs">
+                            <Flag code={r.origin} className="h-[10px] w-[14px]" /> {r.origin}
+                            <ArrowRight className="size-2.5 text-muted" aria-hidden />
+                            <Flag code={r.destination} className="h-[10px] w-[14px]" /> {r.destination}
+                          </span>
+                        </td>
+                        <td className="py-1.5 pr-3 text-xs text-muted">{r.qty}</td>
+                        <td className="py-1.5 text-right text-xs font-semibold">{r.value}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted">
+                  Illustrative example rows <IllustrativeBadge />
+                </p>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+
         <Reveal delay={100} className="mt-9 flex flex-wrap justify-center gap-3">
           {chips.map((c) => (
             <span
@@ -876,8 +966,8 @@ export function LandingFinalCta() {
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-white/75 lg:mx-0">
             Use Vaskodigama to discover buyers, suppliers, shipment records,
-            pricing trends, country demand and market opportunities across 40
-            countries and all 100 HS chapters.
+            pricing trends, country demand and market opportunities across
+            40+ countries and all HSN chapters.
           </p>
           <div className="mt-7 flex flex-wrap justify-center gap-3 lg:justify-start">
             <ButtonLink href="/contact" className="btn-gradient h-12 rounded-full px-7 text-base">
@@ -960,7 +1050,9 @@ const NETWORK_NODES: { icon: LucideIcon; label: string; angle: number }[] = [
 /**
  * Product-at-the-centre relationship diagram — pure CSS/trig layout, no
  * charting library. Node positions are computed from fixed angles so the
- * connecting lines and icons stay perfectly aligned at any size.
+ * connecting lines and icons stay perfectly aligned at any size. The centre
+ * label is deliberately generic ("Products") — this diagram represents how
+ * ANY product search connects to the wider trade ecosystem, not one example.
  */
 export function BuyerSupplierNetwork() {
   const radius = 42; // percent of container
@@ -992,7 +1084,7 @@ export function BuyerSupplierNetwork() {
         <span className="flex size-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
           <Package className="size-4.5" aria-hidden />
         </span>
-        <p className="mt-1.5 text-xs font-semibold text-navy">Solar Panels</p>
+        <p className="mt-1.5 text-xs font-semibold text-navy">Products</p>
       </div>
 
       {/* Connected nodes */}

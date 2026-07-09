@@ -5,18 +5,15 @@ import { Section, Eyebrow } from "@/components/ui/misc";
 import { Reveal } from "@/components/shared/reveal";
 import { PharmaLandingHeroSearch } from "@/components/marketing/pharma-landing/hero-search";
 import { MetricsBand } from "@/components/marketing/pharma-landing/metrics-band";
-import { SearchPreviewDashboard } from "@/components/marketing/pharma-landing/search-preview";
 import { AnnouncementStrip, HeroFloatingChips } from "@/components/marketing/pharma-landing/hero-extras";
 import {
   DataCoverage,
   ProblemSolution,
   HsChapterCoverage,
   KeyFeatures,
-  OpportunitySection,
   SearchJourney,
   BuyerSupplierNetwork,
   UseCases,
-  BusinessDecisions,
   WhyVaskodigama,
   GlobalCoverage,
   LandingFinalCta,
@@ -24,38 +21,31 @@ import {
 import { tradeData } from "@/lib/data";
 
 export const metadata: Metadata = {
-  title: "Global Import-Export Intelligence Across 40 Countries | Vaskodigama",
+  title: "Global Import-Export Intelligence Across 40+ Countries | Vaskodigama",
   description:
-    "Vaskodigama helps businesses discover buyers, suppliers, importers, exporters, shipment records, pricing trends, trade routes and market opportunities across 40 countries and all 100 HS chapters.",
+    "Vaskodigama helps businesses discover buyers, suppliers, importers, exporters, shipment records, pricing trends, trade routes and market opportunities across 40+ countries and all HSN chapters.",
 };
 
 const HERO_POINTS = [
-  { icon: Globe2, label: "40 countries" },
-  { icon: Layers, label: "100 HS chapters" },
+  { icon: Globe2, label: "40+ countries" },
+  { icon: Layers, label: "All HSN chapters" },
   { icon: Users, label: "Buyer & supplier intelligence" },
   { icon: Ship, label: "Shipment-level records" },
   { icon: Briefcase, label: "Built for sourcing, sales & procurement" },
 ];
 
 export default async function PharmaLandingPage() {
-  const [summary, coverage, buyers, suppliers, shipments, priceRecords, exploreRecords] =
-    await Promise.all([
-      tradeData.getTradeAnalytics(),
-      tradeData.listCoverage(),
-      tradeData.listBuyers(),
-      tradeData.listSuppliers(),
-      tradeData.listShipments(),
-      tradeData.listPriceRecords(),
-      tradeData.listExploreRecords(),
-    ]);
-
-  const avgPrice =
-    priceRecords.reduce((a, p) => a + p.avgUnitPrice, 0) / priceRecords.length;
-  const opportunityScore = 72;
+  const [summary, coverage, buyers, suppliers, shipments] = await Promise.all([
+    tradeData.getTradeAnalytics(),
+    tradeData.listCoverage(),
+    tradeData.listBuyers(),
+    tradeData.listSuppliers(),
+    tradeData.listShipments(),
+  ]);
 
   const metrics = [
-    { label: "Countries covered", value: `${coverage.length}` },
-    { label: "HS chapters", value: "100" },
+    { label: "Countries covered", value: `${coverage.length}+` },
+    { label: "HSN chapters", value: "All" },
     { label: "Trade data", value: "Import & Export" },
     { label: "Intelligence", value: "Buyer & Supplier" },
     { label: "Trade records", value: "Shipment-Level" },
@@ -71,19 +61,6 @@ export default async function PharmaLandingPage() {
     { label: "Shipment records", value: `${shipments.length}` },
   ];
 
-  const recentRecords = exploreRecords.slice(0, 4).map((r) => ({
-    id: r.id,
-    product: r.productDescription,
-    buyer: r.buyer,
-    supplier: r.supplier,
-    originCode: r.originCountry,
-    destinationCode: r.destinationCountry,
-    quantity: r.quantity,
-    unit: r.unit,
-    value: r.tradeValue,
-    date: r.date,
-  }));
-
   return (
     <>
       {/* ── Top announcement strip ───────────────────────────────────────── */}
@@ -98,7 +75,7 @@ export default async function PharmaLandingPage() {
           </span>
           <h1 className="mt-5 text-4xl font-extrabold leading-[1.08] text-white sm:text-5xl">
             Explore Global Import-Export Intelligence{" "}
-            <span className="text-gradient-light">Across 40 Countries and 100 HS Chapters</span>
+            <span className="text-gradient-light">Across 40+ Countries and All HSN Chapters</span>
           </h1>
           <p className="mx-auto mt-5 max-w-2xl text-lg text-white/75">
             Vaskodigama transforms raw trade records into structured
@@ -151,75 +128,32 @@ export default async function PharmaLandingPage() {
         <DataCoverage />
       </Section>
 
-      {/* ── Why Vaskodigama + data transform artifact ────────────────────── */}
+      {/* ── Vaskodigama Makes It Decision-Ready (artifact) ───────────────── */}
       <Section className="py-16 sm:py-20">
         <ProblemSolution />
       </Section>
 
-      {/* ── Core intelligence features ───────────────────────────────────── */}
+      {/* ── Why Vaskodigama (merged differentiation) ─────────────────────── */}
       <Section muted className="py-16 sm:py-20">
+        <WhyVaskodigama />
+      </Section>
+
+      {/* ── Core intelligence features ───────────────────────────────────── */}
+      <Section className="py-16 sm:py-20">
         <KeyFeatures />
       </Section>
 
       {/* ── HS chapter coverage ──────────────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
+      <Section muted className="py-16 sm:py-20">
         <HsChapterCoverage />
       </Section>
 
       {/* ── Country coverage ─────────────────────────────────────────────── */}
-      <Section muted className="py-16 sm:py-20">
+      <Section className="py-16 sm:py-20">
         <GlobalCoverage chips={coverageChips} />
       </Section>
 
-      {/* ── Opportunity Score ─────────────────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
-        <OpportunitySection />
-      </Section>
-
-      {/* ── Search-to-insight journey ─────────────────────────────────────── */}
-      <Section muted className="py-16 sm:py-20">
-        <Reveal className="mx-auto max-w-2xl text-center">
-          <Eyebrow>A look inside</Eyebrow>
-          <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-            From Search to Actionable Insight in Seconds
-          </h2>
-          <p className="mt-3 text-muted">
-            Vaskodigama doesn&apos;t hand you raw shipment rows — it returns
-            structured, decision-ready intelligence in a few clear steps.
-          </p>
-        </Reveal>
-        <div className="mt-12">
-          <SearchJourney />
-        </div>
-      </Section>
-
-      {/* ── Sample insight preview ───────────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
-        <Reveal className="mx-auto max-w-2xl text-center">
-          <Eyebrow>Sample result</Eyebrow>
-          <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
-            Search result for Solar Panels
-          </h2>
-          <p className="mt-3 text-muted">
-            Not raw data — structured, decision-ready intelligence: buyers,
-            suppliers, markets, pricing and an Opportunity Score in one view.
-          </p>
-        </Reveal>
-        <Reveal delay={100} className="mx-auto mt-10 max-w-4xl">
-          <SearchPreviewDashboard
-            productName="Solar Panels"
-            summary={summary}
-            buyerCount={buyers.length}
-            supplierCount={suppliers.length}
-            shipmentCount={shipments.length}
-            avgPrice={avgPrice}
-            opportunityScore={opportunityScore}
-            recentRecords={recentRecords}
-          />
-        </Reveal>
-      </Section>
-
-      {/* ── Buyer–supplier network ───────────────────────────────────────── */}
+      {/* ── How it connects ──────────────────────────────────────────────── */}
       <Section muted className="py-16 sm:py-20">
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_1fr]">
           <Reveal>
@@ -238,19 +172,26 @@ export default async function PharmaLandingPage() {
         </div>
       </Section>
 
+      {/* ── Search-to-insight journey ─────────────────────────────────────── */}
+      <Section className="py-16 sm:py-20">
+        <Reveal className="mx-auto max-w-2xl text-center">
+          <Eyebrow>A look inside</Eyebrow>
+          <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
+            From Search to Actionable Insight in Seconds
+          </h2>
+          <p className="mt-3 text-muted">
+            Vaskodigama doesn&apos;t hand you raw shipment rows — it returns
+            structured, decision-ready intelligence in a few clear steps.
+          </p>
+        </Reveal>
+        <div className="mt-12">
+          <SearchJourney />
+        </div>
+      </Section>
+
       {/* ── Use cases ─────────────────────────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
-        <UseCases />
-      </Section>
-
-      {/* ── From trade records to business decisions ─────────────────────── */}
       <Section muted className="py-16 sm:py-20">
-        <BusinessDecisions />
-      </Section>
-
-      {/* ── Why Vaskodigama (differentiation) ─────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
-        <WhyVaskodigama />
+        <UseCases />
       </Section>
 
       {/* ── Final CTA ───────────────────────────────────────────────────── */}

@@ -8,7 +8,7 @@ import { ArrowRight } from "lucide-react";
 export function AnnouncementStrip() {
   return (
     <div className="bg-navy-deep px-4 py-2 text-center text-xs font-medium text-white/80">
-      Explore import-export intelligence across 40 countries{" "}
+      Explore import-export intelligence across 40+ countries{" "}
       <Link href="#global-coverage" className="inline-flex items-center gap-1 font-semibold text-white hover:underline">
         View country coverage <ArrowRight className="size-3" aria-hidden />
       </Link>
