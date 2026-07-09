@@ -14,7 +14,6 @@ import {
   SearchJourney,
   BuyerSupplierNetwork,
   UseCases,
-  WhyVaskodigama,
   GlobalCoverage,
   LandingFinalCta,
 } from "@/components/marketing/pharma-landing/sections";
@@ -133,28 +132,23 @@ export default async function PharmaLandingPage() {
         <ProblemSolution />
       </Section>
 
-      {/* ── Why Vaskodigama (merged differentiation) ─────────────────────── */}
-      <Section muted className="py-16 sm:py-20">
-        <WhyVaskodigama />
-      </Section>
-
       {/* ── Core intelligence features ───────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
+      <Section muted className="py-16 sm:py-20">
         <KeyFeatures />
       </Section>
 
       {/* ── HS chapter coverage ──────────────────────────────────────────── */}
-      <Section muted className="py-16 sm:py-20">
+      <Section className="py-16 sm:py-20">
         <HsChapterCoverage />
       </Section>
 
       {/* ── Country coverage ─────────────────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
+      <Section muted className="py-16 sm:py-20">
         <GlobalCoverage chips={coverageChips} />
       </Section>
 
       {/* ── How it connects ──────────────────────────────────────────────── */}
-      <Section muted className="py-16 sm:py-20">
+      <Section className="py-16 sm:py-20">
         <div className="grid items-center gap-10 lg:grid-cols-[1fr_1fr]">
           <Reveal>
             <Eyebrow>How it connects</Eyebrow>
@@ -173,7 +167,7 @@ export default async function PharmaLandingPage() {
       </Section>
 
       {/* ── Search-to-insight journey ─────────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
+      <Section muted className="py-16 sm:py-20">
         <Reveal className="mx-auto max-w-2xl text-center">
           <Eyebrow>A look inside</Eyebrow>
           <h2 className="mt-2 text-3xl font-bold text-navy sm:text-4xl">
@@ -190,7 +184,7 @@ export default async function PharmaLandingPage() {
       </Section>
 
       {/* ── Use cases ─────────────────────────────────────────────────────── */}
-      <Section muted className="py-16 sm:py-20">
+      <Section className="py-16 sm:py-20">
         <UseCases />
       </Section>
 
