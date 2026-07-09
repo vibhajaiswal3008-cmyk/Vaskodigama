@@ -669,13 +669,6 @@ const COVERAGE_FEATURES: CoverageFeature[] = [
   },
 ];
 
-/* Illustrative shipment rows — broad trade examples, not tied to one industry. */
-const SHIPMENT_ROWS = [
-  { product: "Basmati Rice", hs: "1006.30", origin: "IN", destination: "GB", qty: "4.2K kg", value: "$18,600" },
-  { product: "Solar Panels", hs: "8541.40", origin: "CN", destination: "DE", qty: "1.8K units", value: "$52,300" },
-  { product: "Copper Wire", hs: "7408.11", origin: "CN", destination: "US", qty: "6.5K kg", value: "$31,900" },
-];
-
 const HEADLINE_METRICS: { icon: LucideIcon; value: string; label: string; sub: string; tint: string }[] = [
   {
     icon: Ship,
@@ -760,54 +753,6 @@ export function GlobalCoverage() {
               </Reveal>
             );
           })}
-
-          {/* Shipment-level intelligence — spans full width, includes mini table */}
-          <Reveal delay={COVERAGE_FEATURES.length * 50} className="sm:col-span-2 lg:col-span-3">
-            <div className="rounded-xl border border-border bg-background p-4">
-              <div className="flex items-center gap-2">
-                <span className="flex size-9 items-center justify-center rounded-lg bg-primary-soft text-primary">
-                  <Ship className="size-4.5" aria-hidden />
-                </span>
-                <div>
-                  <h3 className="text-sm font-semibold text-navy">Shipment-Level Intelligence</h3>
-                  <p className="text-xs text-muted">Quantity, value, price, product and company detail behind every trade.</p>
-                </div>
-              </div>
-              <div className="mt-3 overflow-x-auto">
-                <table className="w-full min-w-[480px] border-collapse text-sm">
-                  <thead>
-                    <tr className="border-b border-border text-left text-xs text-muted">
-                      <th className="py-1.5 pr-3 font-medium">Product</th>
-                      <th className="py-1.5 pr-3 font-medium">HSN code</th>
-                      <th className="py-1.5 pr-3 font-medium">Route</th>
-                      <th className="py-1.5 pr-3 font-medium">Qty</th>
-                      <th className="py-1.5 text-right font-medium">Value</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-border">
-                    {SHIPMENT_ROWS.map((r) => (
-                      <tr key={r.product} className="text-navy">
-                        <td className="py-1.5 pr-3 text-xs font-medium">{r.product}</td>
-                        <td className="py-1.5 pr-3 text-xs text-muted">{r.hs}</td>
-                        <td className="py-1.5 pr-3">
-                          <span className="flex items-center gap-1 whitespace-nowrap text-xs">
-                            <Flag code={r.origin} className="h-[10px] w-[14px]" /> {r.origin}
-                            <ArrowRight className="size-2.5 text-muted" aria-hidden />
-                            <Flag code={r.destination} className="h-[10px] w-[14px]" /> {r.destination}
-                          </span>
-                        </td>
-                        <td className="py-1.5 pr-3 text-xs text-muted">{r.qty}</td>
-                        <td className="py-1.5 text-right text-xs font-semibold">{r.value}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <p className="mt-2 flex items-center gap-1.5 text-[11px] text-muted">
-                  Illustrative example rows <IllustrativeBadge />
-                </p>
-              </div>
-            </div>
-          </Reveal>
         </div>
 
         <Reveal delay={100} className="mt-9 rounded-2xl border border-border bg-background p-5">

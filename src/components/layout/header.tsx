@@ -13,6 +13,16 @@ import { cn } from "@/lib/utils";
 const samePath = (a: string, b: string) =>
   a.replace(/\/+$/, "") === b.replace(/\/+$/, "");
 
+/** In-page section nav for the pharma-landing draft — anchors, not routes. */
+const PHARMA_LANDING_NAV = [
+  { label: "Data Coverage", href: "#data-coverage" },
+  { label: "Why Us", href: "#why-us" },
+  { label: "Intelligence Features", href: "#intelligence-features" },
+  { label: "HSN Coverage", href: "#hsn-coverage" },
+  { label: "Global Coverage", href: "#global-coverage" },
+  { label: "Use Cases", href: "#use-cases" },
+];
+
 export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -66,7 +76,20 @@ export function Header() {
       >
         <Logo />
 
-        {isPharmaLanding ? null : (
+        {isPharmaLanding ? (
+          <ul className="ml-4 hidden items-center gap-1 lg:flex">
+            {PHARMA_LANDING_NAV.map((item) => (
+              <li key={item.label}>
+                <a
+                  href={item.href}
+                  className="rounded-md px-3 py-2 text-sm font-medium text-muted-strong hover:bg-surface hover:text-navy"
+                >
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
           <ul className="ml-4 hidden items-center gap-1 lg:flex">
             {mainNav.map((item) =>
               item.children ? (
@@ -117,7 +140,7 @@ export function Header() {
       </nav>
 
       {mobileOpen ? (
-        <MobileMenu pathname={pathname} onNavigate={closeMobile} showNav={!isPharmaLanding} />
+        <MobileMenu pathname={pathname} onNavigate={closeMobile} useAnchorNav={isPharmaLanding} />
       ) : null}
     </header>
   );
@@ -203,11 +226,11 @@ function DropdownNav({
 function MobileMenu({
   pathname,
   onNavigate,
-  showNav = true,
+  useAnchorNav = false,
 }: {
   pathname: string;
   onNavigate: () => void;
-  showNav?: boolean;
+  useAnchorNav?: boolean;
 }) {
   return (
     <div
@@ -219,8 +242,17 @@ function MobileMenu({
       className="border-t border-border bg-background lg:hidden"
     >
       <div className="mx-auto max-w-6xl space-y-1 px-4 py-4 sm:px-6">
-        {showNav
-          ? mainNav.map((item) => (
+        {useAnchorNav
+          ? PHARMA_LANDING_NAV.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                className="block rounded-md px-3 py-2 text-sm font-semibold text-navy hover:bg-surface"
+              >
+                {item.label}
+              </a>
+            ))
+          : mainNav.map((item) => (
               <div key={item.label}>
                 <Link
                   href={item.href}
@@ -245,8 +277,7 @@ function MobileMenu({
                   </div>
                 ) : null}
               </div>
-            ))
-          : null}
+            ))}
         <div className="grid gap-2 pt-3">
           <ButtonLink href="/login" variant="ghost" className="justify-start">
             Sign in

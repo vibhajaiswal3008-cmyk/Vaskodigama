@@ -108,22 +108,22 @@ export default async function PharmaLandingPage() {
       </section>
 
       {/* ── Data coverage ─────────────────────────────────────────────────── */}
-      <Section muted className="py-16 sm:py-20">
+      <Section id="data-coverage" muted className="py-16 sm:py-20">
         <DataCoverage />
       </Section>
 
       {/* ── Vaskodigama Makes It Decision-Ready (artifact) ───────────────── */}
-      <Section className="py-16 sm:py-20">
+      <Section id="why-us" className="py-16 sm:py-20">
         <ProblemSolution />
       </Section>
 
       {/* ── Core intelligence features ───────────────────────────────────── */}
-      <Section muted className="py-16 sm:py-20">
+      <Section id="intelligence-features" muted className="py-16 sm:py-20">
         <KeyFeatures />
       </Section>
 
       {/* ── HS chapter coverage ──────────────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
+      <Section id="hsn-coverage" className="py-16 sm:py-20">
         <HsChapterCoverage />
       </Section>
 
@@ -169,7 +169,7 @@ export default async function PharmaLandingPage() {
       </Section>
 
       {/* ── Use cases ─────────────────────────────────────────────────────── */}
-      <Section className="py-16 sm:py-20">
+      <Section id="use-cases" className="py-16 sm:py-20">
         <UseCases />
       </Section>
 
